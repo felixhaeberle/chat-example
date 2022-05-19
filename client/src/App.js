@@ -17,7 +17,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    socket.on("cursor_position", data => setOtherCursorPosition(data))
+    socket.on("cursor_position_update", data => setOtherCursorPosition(data))
   });
 
   const handleMouseChange = (e) => {
