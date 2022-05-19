@@ -20,8 +20,8 @@ io.on("connection", (socket) => {
   console.log("New client connected");
 
   socket.on('cursor_position', (data) => {
-    console.log(data);
-    socket.emit('cursor_position_update', data);
+    console.log(data)
+    socket.broadcast.emit('cursor_position_update', data);
   })
   
   socket.on("disconnect", () => {

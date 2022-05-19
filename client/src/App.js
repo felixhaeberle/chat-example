@@ -1,51 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import socketIOClient from "socket.io-client";
+import io from "socket.io-client";
 
-const ENDPOINT = "collaboration-lab.netlify.app:4001";
+let socket;
+const ENDPOINT = "http://localhost:4001";
 
 // create random user
-const user = "User_" + String(new Date().getTime()).substr(-3);
-
-const socket = socketIOClient(ENDPOINT);
+//const user = "User_" + String(new Date().getTime()).substr(-3);
 
 function App() {
-  const [cursorPosition, setCursorPosition] = useState({x: null, y: null});
-  const [cursorData, setCursorData] = useState([]);
-  const [renderCursorData, setRenderCursorData] = useState();
+  const [cursorPosition, setCursorPosition] = useState({x: 100, y: 100});
+  const [otherCursorPosition, setOtherCursorPosition] = useState(null);
 
-  socket.on("cursor_position_update", data => {
-    console.log('hi')
-    setRenderCursorData(data);
+  useEffect(() => {
+    socket = io(ENDPOINT);
+  }, [])
+
+  useEffect(() => {
+    socket.on("cursor_position", data => setOtherCursorPosition(data))
   });
 
   const handleMouseChange = (e) => {
-    setCursorPosition({x: e.clientX, y: e.clientY});
-      
-    let userData = {user: user, cursor: cursorPosition}
-    console.log('user: ' + cursorData.find((obj) => obj.user === user));
-    if(cursorData.find((obj) => obj.user === user)) {
-      console.log('exisiting');
-      console.log(cursorData)
-      cursorData.find((obj) => obj.user === user).cursor = cursorPosition;
-    } else {
-      console.log('new');
-      console.log([...cursorData, userData])
-      setCursorData([...cursorData, userData]);
-    }
-
-    socket.emit("cursor_position", cursorData);
+    setCursorPosition({x: e.pageX, y: e.pageY});
+    socket.emit("cursor_position", cursorPosition);
   }
 
-  console.log(renderCursorData);
-
   return (
-    <div style={{ height: '100vh', width: '100vw', cursor: 'none' }} onMouseMove={(e) => handleMouseChange(e)}>
-    {
-      renderCursorData ? renderCursorData.map((cursor, i) => (
-        <svg
-          key={i}
-          style={{ transform: 'rotate(180deg)', height:'30px', width: '30px', position: 'absolute', top: cursor.cursor.y, left: cursor.cursor.x }}
+    <div style={{ height: '100vh', width: '100vw' }} onMouseMove={(e) => handleMouseChange(e)}>
+      <svg
+          style={{ transform: 'rotate(180deg)', height:'30px', width: '30px', position: 'absolute', top: otherCursorPosition ? otherCursorPosition.y : null, left: otherCursorPosition ? otherCursorPosition.x : null }}
           xmlns="http://www.w3.org/2000/svg"
           x="0"
           y="0"
@@ -63,9 +46,7 @@ function App() {
             transform="rotate(-22.773 13.483 17.596)"
           ></path>
           <path d="M9.2 7.3L9.2 18.5 12.2 15.6 12.6 15.5 17.4 15.5z"></path>
-        </svg>   
-      )) : null
-    }
+        </svg> 
     </div>
   );
 }
