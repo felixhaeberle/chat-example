@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import socketIOClient from "socket.io-client";
 
-const ENDPOINT = "http://localhost:4001";
+const ENDPOINT = "collaboration-lab.netlify.app:4001";
 
 // create random user
 const user = "User_" + String(new Date().getTime()).substr(-3);
