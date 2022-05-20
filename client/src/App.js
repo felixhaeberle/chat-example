@@ -11,20 +11,27 @@ const ENDPOINT = "http://localhost:4001";
 
 function App() {
   const [cursorPosition, setCursorPosition] = useState({x: 100, y: 100});
-  const [otherCursorPosition, setOtherCursorPosition] = useState(null);
-  const [cursorColor, setCursorColor] = useState(null);
+  const [cursors, setCursors] = useState([]);
 
   useEffect(() => {
     socket = io(ENDPOINT);
   }, [])
 
   useEffect(() => {
-    socket.on("cursor_position_update", data => setOtherCursorPosition(data))
-    
-    if(otherCursorPosition?.socket) {
-      setCursorColor(getSimilarColors(stringToColor(String(otherCursorPosition?.socket))));
-    }
-  }, [otherCursorPosition?.socket]);
+    socket.on("cursor_position_update", data => {
+      let index = cursors.findIndex((el) => el.socket === data.socket);
+      console.log(cursors[index]);
+      if(cursors[index] !== undefined) {
+        console.log(cursors[index]);
+        cursors[index].x = data.x;
+        cursors[index].y = data.y;
+        cursors[index].color = getSimilarColors(stringToColor(String(cursors[index].socket)));
+      } else if (data.socket) {
+        cursors.push(data);
+      }
+      console.log(cursors);
+    })
+  }, [cursors]);
 
   const handleMouseChange = (e) => {
     setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id});
@@ -32,10 +39,12 @@ function App() {
   }
 
   return (
-    <div style={{ height: '100vh', width: '100vw' }} onMouseMove={(e) => handleMouseChange(e)}>
-      { otherCursorPosition?.socket !== socket?.id &&
-        <svg
-          style={{ height:'30px', width: '30px', position: 'absolute', top: otherCursorPosition ? otherCursorPosition.y : null, left: otherCursorPosition ? otherCursorPosition.x : null }}
+    <div style={{ height: '100vh', width: '100vw'}} onMouseMove={(e) => handleMouseChange(e)}>
+      { cursors.length !== 0 && cursors.map((c) => {
+        if(c.socket === socket.id) return null
+        return (
+          <svg
+          style={{ height:'50px', width: '50px', position: 'absolute', top: c ? c.y : null, left: c ? c.x : null }}
           xmlns="http://www.w3.org/2000/svg"
           x="0"
           y="0"
@@ -43,9 +52,10 @@ function App() {
           viewBox="0 0 28 28"
           xmlSpace="preserve"
         >
-          <path fill={'#' + cursorColor} d="M9.2 7.3L9.2 18.5 12.2 15.6 12.6 15.5 17.4 15.5z"></path>
-        </svg> 
-      }
+          <path fill={'#' + c.color} d="M9.2 7.3L9.2 18.5 12.2 15.6 12.6 15.5 17.4 15.5z"></path>
+        </svg>  
+        )
+      }) }
     </div>
   );
 }
