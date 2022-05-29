@@ -4,7 +4,7 @@ import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io from "socket.io-client";
 
 let socket;
-const ENDPOINT = "http://localhost:4001";
+const ENDPOINT = process.env.NODE_ENV === "production" ? process.env.REACT_APP_PROD_ENDPOINT : "http://localhost:4001";
 
 // create random user
 //const user = "User_" + String(new Date().getTime()).substring(-3);
