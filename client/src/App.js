@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getSimilarColors, stringToColor } from "./helpers/getSimilarColor";
+import { getSimilarColors, stringToColor } from "./helpers/colors";
 
 import io from "socket.io-client";
 
@@ -11,6 +11,7 @@ const ENDPOINT = "http://localhost:4001";
 
 function App() {
   const [cursorPosition, setCursorPosition] = useState({x: 100, y: 100});
+  // eslint-disable-next-line
   const [cursors, setCursors] = useState([]);
 
   useEffect(() => {
