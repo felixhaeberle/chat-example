@@ -4,12 +4,11 @@ import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io from "socket.io-client";
 
 let socket;
+const ENDPOINT = process.env.NODE_ENV === "development" ? "http://localhost:4001" : "https://collaboration-lab.herokuapp.com:4001";
 // create random user
 //const user = "User_" + String(new Date().getTime()).substring(-3);
 
 function App() {
-  console.log(process.env.NODE_ENV)
-  const ENDPOINT = process.env.NODE_ENV === "development" ? "http://localhost:4001" : "https://collaboration-lab.herokuapp.com:4001";
   const [cursorPosition, setCursorPosition] = useState({x: 100, y: 100});
   // eslint-disable-next-line
   const [cursors, setCursors] = useState([]);
