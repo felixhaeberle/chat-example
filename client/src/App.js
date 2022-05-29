@@ -10,7 +10,6 @@ const ENDPOINT = "http://localhost:4001";
 //const user = "User_" + String(new Date().getTime()).substring(-3);
 
 function App() {
-  
   const [cursorPosition, setCursorPosition] = useState({x: 100, y: 100});
   // eslint-disable-next-line
   const [cursors, setCursors] = useState([]);
