@@ -4,8 +4,7 @@ import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io from "socket.io-client";
 
 let socket;
-console.log(process.env.NODE_ENV);
-const ENDPOINT = process.env.NODE_ENV === "development" ? "http:/localhost:4001" : "https://collaboration-lab.herokuapp.com/";
+const ENDPOINT = process.env.NODE_ENV === "development" ? "http://localhost:4001" : "https://collaboration-lab.herokuapp.com/";
 // create random user
 //const user = "User_" + String(new Date().getTime()).substring(-3);
 
