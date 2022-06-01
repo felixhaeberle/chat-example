@@ -42,6 +42,7 @@ function App() {
 
   return (
     <div style={{ height: '100vh', width: '100vw'}} onMouseMove={(e) => handleMouseChange(e)}>
+      <label>Your name</label>
       <input value={name} onChange={(e) => {
         setName(e.target.value)
       }} />
