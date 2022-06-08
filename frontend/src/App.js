@@ -9,6 +9,7 @@ const ENDPOINT = process.env.NODE_ENV === "development" ? "http://localhost:4001
 //const user = "User_" + String(new Date().getTime()).substring(-3);
 
 function App() {
+  const [midpointCoordinate, setMidpointCoordinate] = useState();
   const [cursorPosition, setCursorPosition] = useState({x: 100, y: 100});
   const [name, setName] = useState('');
   // eslint-disable-next-line
@@ -28,6 +29,7 @@ function App() {
         cursors[index].y = data.y;
         cursors[index].name = data.name;
         cursors[index].color = getSimilarColors(stringToColor(String(cursors[index].socket)));
+        cursors[index].midpoint = data.midpoint;
       } else if (data.socket) {
         cursors.push(data);
       }
@@ -35,38 +37,63 @@ function App() {
     })
   }, [cursors]);
 
+  const getPolarDegree = (cursor, midPoint) => {
+    /* Degree */
+    let polarX = cursor.x > midPoint.x ? cursor.x - midPoint.x : midPoint.x - cursor.x;
+    let polarY = cursor.y > midPoint.y ? cursor.y - midPoint.y : midPoint.y - cursor.y;
+    let polarDegree = (Math.atan(polarX/polarY)/Math.PI)*180;
+    console.log(polarDegree)
+    return polarDegree;
+  }
+
+  const calculateMidpointCoordinates = (cursors) => {
+    /* Coordinates */
+    let x = 0;
+    let y = 0;
+    cursors.map((cursor) => x = x + cursor.x);
+    cursors.map((cursor) => y = y + cursor.y);
+    /* Set values */
+    setMidpointCoordinate({x: x/cursors.length, y: y/cursors.length})
+  }
+
   const handleMouseChange = (e) => {
-    setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : ''});
+    if (cursors.length > 0) {
+      calculateMidpointCoordinates(cursors)
+    }
+    console.log(midpointCoordinate);
+    setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', midpoint: midpointCoordinate ? midpointCoordinate : ''});
     socket.emit("cursor_position", cursorPosition);
   }
 
   return (
-    <div style={{ height: '100vh', width: '100vw'}} onMouseMove={(e) => handleMouseChange(e)}>
-      <label>Your name</label>
-      <input value={name} onChange={(e) => {
-        setName(e.target.value)
-      }} />
-      { cursors.length !== 0 && cursors.map((c) => {
-        if(c.socket === socket.id) return null
-        return (
-          <div style={{ position: 'absolute', top: c ? c.y : null, left: c ? c.x : null }}>
-            <svg
-              style={{ height:'50px', width: '50px' }}
-              xmlns="http://www.w3.org/2000/svg"
-              x="0"
-              y="0"
-              version="1.1"
-              viewBox="0 0 28 28"
-              xmlSpace="preserve"
-            >
-              <path fill={'#' + c.color} d="M9.2 7.3L9.2 18.5 12.2 15.6 12.6 15.5 17.4 15.5z"></path>
-              
-            </svg>
-            {c.name !== '' ? <span>{ c.name }</span> : null}  
-          </div>
-        )
-      }) }
-    </div>
+    <>
+      <div style={{ height: '100vh', width: '100vw'}} onMouseMove={(e) => handleMouseChange(e)}>
+        <label>Your name</label>
+        <input value={name} onChange={(e) => {
+          setName(e.target.value)
+        }} />
+        { cursors.length !== 0 && cursors.map((c) => {
+          if(c.socket === socket.id) return null
+          return (
+            <div key={c.id} style={{ position: 'absolute', top: c ? c.y : null, left: c ? c.x : null, transform: `${getPolarDegree(c, c.midpoint)} + 'deg'`}}>
+              <svg
+                style={{ height:'50px', width: '50px' }}
+                xmlns="http://www.w3.org/2000/svg"
+                x="0"
+                y="0"
+                version="1.1"
+                viewBox="0 0 28 28"
+                xmlSpace="preserve"
+              >
+                <path fill={'#' + c.color} d="M9.2 7.3L9.2 18.5 12.2 15.6 12.6 15.5 17.4 15.5z"></path>
+                
+              </svg>
+              {c.name !== '' ? <span>{ c.name }</span> : null}  
+            </div>
+          )
+        }) }
+      </div>
+    </>
   );
 }
 
