@@ -39,9 +39,39 @@ function App() {
 
   const getPolarDegree = (cursor, midPoint) => {
     /* Degree */
-    let polarX = cursor.x > midPoint.x ? cursor.x - midPoint.x : midPoint.x - cursor.x;
-    let polarY = cursor.y > midPoint.y ? cursor.y - midPoint.y : midPoint.y - cursor.y;
-    let polarDegree = (Math.atan(polarX/polarY)/Math.PI)*180;
+    let polarX;
+    let polarY;
+    let polarDegree;
+    // Forth case
+    if(midPoint.x > cursor.x && midPoint.y > cursor.y) {
+      polarX = cursor.x - midPoint.x;
+      polarY = cursor.y - midPoint.y;
+      console.log('forth', polarX, polarY);
+      polarDegree = Math.atan(polarY/polarX) * (180/Math.PI)
+    }
+    // First case
+    if (midPoint.x < cursor.x && midPoint.y < cursor.y) {
+      polarX = midPoint.x - cursor.x;
+      polarY = midPoint.y - cursor.y;
+      console.log('first', polarX, polarY);
+      polarDegree = Math.atan(polarY/polarX) * (180/Math.PI)
+    }
+    // Second Case
+    if (midPoint.x > cursor.x && midPoint.y < cursor.y) {
+      polarX = cursor.x - midPoint.x;
+      polarY = midPoint.y - cursor.y;
+      console.log('second', polarX, polarY);
+      polarDegree = Math.atan(polarY/polarX) * (180/Math.PI)
+    }
+    // Third Case
+    if(midPoint.x < cursor.x && midPoint.y > cursor.y) {
+      polarX = midPoint.x - cursor.x;
+      polarY = cursor.y - midPoint.y;
+      console.log('third', polarX, polarY);
+      polarDegree = Math.atan(polarY/polarX) * (180/Math.PI)
+    }
+    // let polarX = midPoint.x > cursor.x ? midPoint.x - cursor.x :  cursor.x - midPoint.x;
+    // let polarY = midPoint.y > cursor.y ? midPoint.y - cursor.y :  cursor.y - midPoint.y;
     console.log(polarDegree)
     return polarDegree;
   }
@@ -60,7 +90,6 @@ function App() {
     if (cursors.length > 0) {
       calculateMidpointCoordinates(cursors)
     }
-    console.log(midpointCoordinate);
     setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', midpoint: midpointCoordinate ? midpointCoordinate : ''});
     socket.emit("cursor_position", cursorPosition);
   }
@@ -74,21 +103,26 @@ function App() {
         }} />
         { cursors.length !== 0 && cursors.map((c) => {
           if(c.socket === socket.id) return null
+          const rotation = getPolarDegree(c, midpointCoordinate);
           return (
-            <div key={c.id} style={{ position: 'absolute', top: c ? c.y : null, left: c ? c.x : null, transform: `${getPolarDegree(c, c.midpoint)} + 'deg'`}}>
-              <svg
-                style={{ height:'50px', width: '50px' }}
-                xmlns="http://www.w3.org/2000/svg"
-                x="0"
-                y="0"
-                version="1.1"
-                viewBox="0 0 28 28"
-                xmlSpace="preserve"
-              >
-                <path fill={'#' + c.color} d="M9.2 7.3L9.2 18.5 12.2 15.6 12.6 15.5 17.4 15.5z"></path>
-                
-              </svg>
-              {c.name !== '' ? <span>{ c.name }</span> : null}  
+            <div style={{ position: 'absolute', top: c ? c.y - 12 : null, left: c ? c.x - 12 : null}}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${rotation + 25 + 'deg'})`, transformOrigin: 'center center'}}>
+                <svg
+                  style={{ height:'24', width: '24' }}
+                  xmlns="http://www.w3.org/2000/svg"
+                  x="0"
+                  y="0"
+                  version="1.1"
+                  viewBox="0 0 24 24"
+                  xmlSpace="preserve"
+                  strokeWidth={2}
+                  stroke={'#' + c.color}
+                >
+                  <path fill={'#' + c.color} strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+              </div>
+              {c.name !== '' ? <span>{ c.name }</span> : null}
+              {rotation ? <span>{ rotation }</span> : null}  
             </div>
           )
         }) }
