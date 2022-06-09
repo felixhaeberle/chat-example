@@ -74,7 +74,19 @@ function App() {
       // let polarX = midPoint.x > cursor.x ? midPoint.x - cursor.x :  cursor.x - midPoint.x;
       // let polarY = midPoint.y > cursor.y ? midPoint.y - cursor.y :  cursor.y - midPoint.y;
       console.log(polarDegree)
-      return polarDegree ? polarDegree : 0;
+      if (midPoint.x === cursor.x && midPoint.y > cursor.y) {
+        return -270 // Bottom
+      } else if (midPoint.x === cursor.x && midPoint.y < cursor.y) {
+        return -90; // Top
+      } else if (midPoint.x === cursor.x && midPoint.y === cursor.y) {
+        return 180; // Middle
+      } else if (midPoint.y === cursor.y && midPoint.x < cursor.x) {
+        return -180; // Left
+      } else if (midPoint.y === cursor.y && midPoint.x > cursor.x) {
+        return 0; // Right
+      } else {
+        return polarDegree ? polarDegree : 0;
+      }
     }
   }
 
