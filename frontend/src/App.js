@@ -42,32 +42,32 @@ function App() {
     let polarX;
     let polarY;
     let polarDegree;
-    // Forth case
-    if(midPoint.x > cursor.x && midPoint.y > cursor.y) {
-      polarX = cursor.x - midPoint.x;
-      polarY = cursor.y - midPoint.y;
-      console.log('forth', polarX, polarY);
-      polarDegree = Math.atan(polarY/polarX) * (180/Math.PI)
-    }
     // First case
     if (midPoint.x < cursor.x && midPoint.y < cursor.y) {
-      polarX = midPoint.x - cursor.x;
-      polarY = midPoint.y - cursor.y;
+      polarX = cursor.x - midPoint.x;
+      polarY = cursor.y - midPoint.y;
       console.log('first', polarX, polarY);
       polarDegree = Math.atan(polarY/polarX) * (180/Math.PI)
     }
     // Second Case
-    if (midPoint.x > cursor.x && midPoint.y < cursor.y) {
-      polarX = cursor.x - midPoint.x;
+    if (midPoint.x > cursor.x && midPoint.y < cursor.y) {   
+      polarX = midPoint.x - cursor.x;
       polarY = midPoint.y - cursor.y;
       console.log('second', polarX, polarY);
       polarDegree = Math.atan(polarY/polarX) * (180/Math.PI)
     }
     // Third Case
     if(midPoint.x < cursor.x && midPoint.y > cursor.y) {
-      polarX = midPoint.x - cursor.x;
+      polarX = cursor.x - midPoint.x;
       polarY = cursor.y - midPoint.y;
       console.log('third', polarX, polarY);
+      polarDegree = Math.atan(polarY/polarX) * (180/Math.PI)
+    }
+    // Forth case
+    if(midPoint.x > cursor.x && midPoint.y > cursor.y) {
+      polarX = midPoint.x - cursor.x;
+      polarY = midPoint.y - cursor.y;
+      console.log('forth', polarX, polarY);
       polarDegree = Math.atan(polarY/polarX) * (180/Math.PI)
     }
     // let polarX = midPoint.x > cursor.x ? midPoint.x - cursor.x :  cursor.x - midPoint.x;
