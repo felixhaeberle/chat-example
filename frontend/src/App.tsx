@@ -66,6 +66,8 @@ function App() {
   }, [cursors]);
 
   const getPolarDegree = (cursor: {x: number; y: number}, midpoint: {x: number; y: number}): number => {
+    console.log('invoke');
+    
     /* Degree */
     let polarX: number;
     let polarY: number;
@@ -130,11 +132,15 @@ function App() {
     if (cursors.length > 0) {
       calculateMidpointCoordinates(cursors)
     }
-    console.log('hi');
-    
-    setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', midpoint: midpointCoordinate ? midpointCoordinate : {x: e.pageX, y: e.pageY}});
+    setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}});
     socket.emit("cursor_position", cursorPosition);
   }
+
+  useEffect(() => {
+    if(cursorPosition?.midpoint.x === 0) {
+      setCursorPosition({x: cursorPosition.x, y: cursorPosition.y, socket: socket.id, name: cursorPosition.name ? cursorPosition.name : '', midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}});
+    }
+  }, [cursorPosition, midpointCoordinate])
 
   return (
     <>
