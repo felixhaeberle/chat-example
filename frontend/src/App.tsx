@@ -143,12 +143,11 @@ function App() {
         <input value={name} onChange={(e) => {
           setName(e.target.value)
         }} />
-        { cursors.length !== 0 && cursors.map((c: Cursor) => {
+        { cursors.length !== 0 && midpointCoordinate && cursors.map((c: Cursor) => {
           if(c.socket === socket.id) return null
-          const rotation = midpointCoordinate ? getPolarDegree(c, midpointCoordinate) : 0;
           return (
             <div style={{ position: 'absolute', top: c ? c.y -12 : undefined, left: c ? c.x -12 : undefined}}>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${rotation + 'deg'})`, transformOrigin: 'center center'}}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${getPolarDegree(c, midpointCoordinate) + 'deg'})`, transformOrigin: 'center center'}}>
                 <svg
                   style={{ height:'24', width: '24' }}
                   xmlns="http://www.w3.org/2000/svg"
@@ -163,8 +162,7 @@ function App() {
                   <path fill={'#' + c.color} strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                 </svg>
               </div>
-              {c.name !== '' ? <span>{ c.name }</span> : null}
-              {rotation ? <span>{ rotation }</span> : null}  
+              {c.name !== '' ? <span>{ c.name }</span> : null} 
             </div>
           )
         }) }
