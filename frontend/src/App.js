@@ -108,7 +108,7 @@ function App() {
           const rotation = getPolarDegree(c, midpointCoordinate);
           return (
             <div style={{ position: 'absolute', top: c ? c.y -12 : null, left: c ? c.x -12 : null}}>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${rotation + 'deg'})`, transformOrigin: 'center center'}}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: rotation ? `rotate(${rotation + 'deg'})` : 'none', transformOrigin: 'center center'}}>
                 <svg
                   style={{ height:'24', width: '24' }}
                   xmlns="http://www.w3.org/2000/svg"
