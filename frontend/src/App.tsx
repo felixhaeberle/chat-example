@@ -1,19 +1,47 @@
 import React, { useEffect, useState } from "react";
+// @ts-ignore
 import { getSimilarColors, stringToColor } from "./helpers/colors";
+import io, { Socket } from "socket.io-client";
 
-import io from "socket.io-client";
-
-let socket;
+let socket: Socket;
 const ENDPOINT = process.env.NODE_ENV === "development" ? "http://localhost:4001" : "https://collaboration-lab.herokuapp.com/";
 // create random user
 //const user = "User_" + String(new Date().getTime()).substring(-3);
 
+interface Cursor {
+  x: number;
+  y: number;
+  socket: string;
+  name: string;
+  color: string;
+  midpoint: {
+    x: number,
+    y: number
+  }
+}
+
+interface cursorPositionType {
+  x: number; 
+  y: number; 
+  socket: string; 
+  name: string; 
+  midpoint: {
+    x: number,
+    y: number
+  }
+}
+
+interface midpointType {
+  x: number; 
+  y: number;
+}
+
 function App() {
-  const [midpointCoordinate, setMidpointCoordinate] = useState();
-  const [cursorPosition, setCursorPosition] = useState({x: 100, y: 100});
+  const [midpointCoordinate, setMidpointCoordinate] = useState<midpointType>();
+  const [cursorPosition, setCursorPosition] = useState<cursorPositionType>();
   const [name, setName] = useState('');
   // eslint-disable-next-line
-  const [cursors, setCursors] = useState([]);
+  const [cursors, setCursors] = useState<Cursor[]>([]);
 
   useEffect(() => {
     socket = io(ENDPOINT);
@@ -37,60 +65,58 @@ function App() {
     })
   }, [cursors]);
 
-  const getPolarDegree = (cursor, midPoint) => {
+  const getPolarDegree = (cursor: {x: number; y: number}, midpoint: {x: number; y: number}): number => {
     /* Degree */
-    let polarX;
-    let polarY;
-    let polarDegree;
+    let polarX: number;
+    let polarY: number;
+    let polarDegree: number = 0;
     // First case
-    if(midPoint && cursor) {
-      if (midPoint.x < cursor.x && midPoint.y < cursor.y) {
-        polarX = cursor.x - midPoint.x;
-        polarY = cursor.y - midPoint.y;
+    if(midpoint && cursor) {
+      if (midpoint.x < cursor.x && midpoint.y < cursor.y) {
+        polarX = cursor.x - midpoint.x;
+        polarY = cursor.y - midpoint.y;
         console.log('first', polarX, polarY);
-        polarDegree =  parseInt(Math.atan(polarY/polarX) * (180/Math.PI) + 180)
+        polarDegree = ~~(Math.atan(polarY/polarX) * (180/Math.PI) + 180)
       }
       // Second Case
-      if (midPoint.x > cursor.x && midPoint.y < cursor.y) {   
-        polarX = midPoint.x - cursor.x;
-        polarY = midPoint.y - cursor.y;
+      if (midpoint.x > cursor.x && midpoint.y < cursor.y) {   
+        polarX = midpoint.x - cursor.x;
+        polarY = midpoint.y - cursor.y;
         console.log('second', polarX, polarY);
-        polarDegree = parseInt(Math.atan(polarY/polarX) * (180/Math.PI))
+        polarDegree = ~~(Math.atan(polarY/polarX) * (180/Math.PI))
       }
       // Third Case
-      if(midPoint.x < cursor.x && midPoint.y > cursor.y) {
-        polarX = cursor.x - midPoint.x;
-        polarY = cursor.y - midPoint.y;
+      if(midpoint.x < cursor.x && midpoint.y > cursor.y) {
+        polarX = cursor.x - midpoint.x;
+        polarY = cursor.y - midpoint.y;
         console.log('third', polarX, polarY);
-        polarDegree = parseInt(Math.atan(polarY/polarX) * (180/Math.PI) + 180)
+        polarDegree = ~~(Math.atan(polarY/polarX) * (180/Math.PI) + 180)
       }
       // Forth case
-      if(midPoint.x > cursor.x && midPoint.y > cursor.y) {
-        polarX = midPoint.x - cursor.x;
-        polarY = midPoint.y - cursor.y;
+      if(midpoint.x > cursor.x && midpoint.y > cursor.y) {
+        polarX = midpoint.x - cursor.x;
+        polarY = midpoint.y - cursor.y;
         console.log('forth', polarX, polarY);
-        polarDegree = parseInt(Math.atan(polarY/polarX) * (180/Math.PI))
+        polarDegree = ~~(Math.atan(polarY/polarX) * (180/Math.PI))
       }
-      // let polarX = midPoint.x > cursor.x ? midPoint.x - cursor.x :  cursor.x - midPoint.x;
-      // let polarY = midPoint.y > cursor.y ? midPoint.y - cursor.y :  cursor.y - midPoint.y;
-      console.log(polarDegree)
-      if (midPoint.x === cursor.x && midPoint.y > cursor.y) {
+      /* Overlapping values */
+      if (midpoint.x === cursor.x && midpoint.y > cursor.y) {
         return -270 // Bottom
-      } else if (midPoint.x === cursor.x && midPoint.y < cursor.y) {
+      } else if (midpoint.x === cursor.x && midpoint.y < cursor.y) {
         return -90; // Top
-      } else if (midPoint.x === cursor.x && midPoint.y === cursor.y) {
+      } else if (midpoint.x === cursor.x && midpoint.y === cursor.y) {
         return 180; // Middle
-      } else if (midPoint.y === cursor.y && midPoint.x < cursor.x) {
+      } else if (midpoint.y === cursor.y && midpoint.x < cursor.x) {
         return -180; // Left
-      } else if (midPoint.y === cursor.y && midPoint.x > cursor.x) {
+      } else if (midpoint.y === cursor.y && midpoint.x > cursor.x) {
         return 0; // Right
-      } else {
-        return polarDegree ? polarDegree : 0;
       }
     }
+
+    return polarDegree;
   }
 
-  const calculateMidpointCoordinates = (cursors) => {
+  const calculateMidpointCoordinates = (cursors: Cursor[]) => {
     /* Coordinates */
     let x = 0;
     let y = 0;
@@ -100,26 +126,28 @@ function App() {
     setMidpointCoordinate({x: x/cursors.length, y: y/cursors.length})
   }
 
-  const handleMouseChange = (e) => {
+  const handleMouseChange = (e: React.MouseEvent<HTMLDivElement>) => {
     if (cursors.length > 0) {
       calculateMidpointCoordinates(cursors)
     }
-    setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', midpoint: midpointCoordinate ? midpointCoordinate : ''});
+    console.log('hi');
+    
+    setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', midpoint: midpointCoordinate ? midpointCoordinate : {x: e.pageX, y: e.pageY}});
     socket.emit("cursor_position", cursorPosition);
   }
 
   return (
     <>
-      <div style={{ height: '100vh', width: '100vw'}} onMouseMove={(e) => handleMouseChange(e)}>
+      <div style={{ height: '100vh', width: '100vw'}} onMouseMove={handleMouseChange}>
         <label>Your name</label>
         <input value={name} onChange={(e) => {
           setName(e.target.value)
         }} />
-        { cursors.length !== 0 && cursors.map((c) => {
+        { cursors.length !== 0 && cursors.map((c: Cursor) => {
           if(c.socket === socket.id) return null
-          const rotation = getPolarDegree(c, midpointCoordinate);
+          const rotation = midpointCoordinate ? getPolarDegree(c, midpointCoordinate) : 0;
           return (
-            <div style={{ position: 'absolute', top: c ? c.y -12 : null, left: c ? c.x -12 : null}}>
+            <div style={{ position: 'absolute', top: c ? c.y -12 : undefined, left: c ? c.x -12 : undefined}}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${rotation + 'deg'})`, transformOrigin: 'center center'}}>
                 <svg
                   style={{ height:'24', width: '24' }}
