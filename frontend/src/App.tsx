@@ -31,17 +31,17 @@ function App() {
           cursors[index].name = data.name;
           cursors[index].color = getSimilarColors(stringToColor(String(cursors[index].socket)));
           cursors[index].midpoint = data.midpoint;
-          cursors[index].rotation = data.rotation;
         } else if(data.socket) {
           cursors.push(data);
         }
       }
     })
-  }, [cursors, midpointCoordinate]);
+  }, [cursors]);
 
   useEffect(() => {
     setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}}) : undefined);
-  }, [midpointCoordinate]);
+    cursors.forEach((c) => c.rotation = getPolarDegree({x: c.x, y: c.y}, midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}))
+  }, [midpointCoordinate, cursors]);
 
   useEffect(() => {
     socket.emit("cursor_position", cursorPosition);
