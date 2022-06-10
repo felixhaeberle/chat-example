@@ -17,10 +17,12 @@ function App() {
   // eslint-disable-next-line
   const [cursors, setCursors] = useState<Cursor[]>([]);
 
+  /* Create socket */
   useEffect(() => {
     socket = io(ENDPOINT);
   }, [])
 
+  /* Apply data to cursors */
   useEffect(() => {
     socket.on("cursor_position_update", (data: Cursor) => {
       if(data && data.socket) {
@@ -38,6 +40,7 @@ function App() {
     })
   }, [cursors]);
 
+  /* Update cursors with midpoint and rotation */
   useEffect(() => {
     if(midpointCoordinate) {
       setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate}) : undefined);
@@ -49,12 +52,13 @@ function App() {
     socket.emit("cursor_position", cursorPosition);
   }, [cursorPosition])
 
+  /* Update midpoint and cursor */
   const handleMouseChange = (e: React.MouseEvent<HTMLDivElement>) => {
     if (cursors) {
       setMidpointCoordinate(calculateMidpointCoordinates(cursors))
     }
     if (midpointCoordinate) {
-      setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', rotation: cursorPosition ? getPolarDegree({x: cursorPosition?.x, y: cursorPosition.y}, midpointCoordinate) : 0, color: cursorPosition?.color ? cursorPosition?.color : '', midpoint: midpointCoordinate});
+      setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', rotation: 0, color: cursorPosition?.color ? cursorPosition?.color : '', midpoint: {x: 0, y: 0}});
     }
   }
 
