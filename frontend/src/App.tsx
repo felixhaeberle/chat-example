@@ -40,18 +40,6 @@ function App() {
     })
   }, [cursors]);
 
-  /* Update cursors with midpoint and rotation */
-  useEffect(() => {
-    if(midpointCoordinate) {
-      setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate}) : undefined);
-      cursors.forEach((c) => c.rotation = getPolarDegree({x: c.x, y: c.y}, midpointCoordinate))
-    }
-  }, [midpointCoordinate, cursors]);
-
-  useEffect(() => {
-    socket.emit("cursor_position", cursorPosition);
-  }, [cursorPosition])
-
   /* Update midpoint and cursor */
   const handleMouseChange = (e: React.MouseEvent<HTMLDivElement>) => {
     if (cursors) {
@@ -62,6 +50,19 @@ function App() {
     }
   }
 
+  /* Update cursors with midpoint and rotation */
+  useEffect(() => {
+    if(midpointCoordinate) {
+      setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate}) : undefined);
+      cursors.forEach((c) => c.rotation = getPolarDegree({x: c.x, y: c.y}, midpointCoordinate))
+    }
+  }, [midpointCoordinate, cursors]);
+
+  /* Emit message with cursor */
+  useEffect(() => {
+    socket.emit("cursor_position", cursorPosition);
+  }, [cursorPosition])
+
   return (
     <>
       <div style={{ height: '100vh', width: '100vw'}} onMouseMove={handleMouseChange}>
@@ -69,10 +70,10 @@ function App() {
         <input value={name} onChange={(e) => {
           setName(e.target.value)
         }} />
-        { socket && cursors.length !== 0 && midpointCoordinate && cursors.map((c: Cursor) => {
+        { socket && cursors.length !== 0 && midpointCoordinate && cursors.map((c: Cursor, index) => {
           if(socket.id && c.socket === socket.id) return null          
           return (
-            <div style={{ position: 'absolute', top: c ? c.y -12 : undefined, left: c ? c.x -12 : undefined}}>
+            <div key={index} style={{ position: 'absolute', top: c ? c.y -12 : undefined, left: c ? c.x -12 : undefined}}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${c.rotation + 'deg'})`, transformOrigin: 'center center'}}>
                 <svg
                   style={{ height:'24', width: '24' }}
