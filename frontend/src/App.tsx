@@ -39,8 +39,10 @@ function App() {
   }, [cursors]);
 
   useEffect(() => {
-    setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}}) : undefined);
-    cursors.forEach((c) => c.rotation = getPolarDegree({x: c.x, y: c.y}, midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}))
+    if(midpointCoordinate) {
+      setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate}) : undefined);
+      cursors.forEach((c) => c.rotation = getPolarDegree({x: c.x, y: c.y}, midpointCoordinate))
+    }
   }, [midpointCoordinate, cursors]);
 
   useEffect(() => {
