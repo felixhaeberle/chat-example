@@ -15,7 +15,7 @@ function App() {
   const [cursorPosition, setCursorPosition] = useState<Cursor>();
   const [name, setName] = useState('');
   // eslint-disable-next-line
-  const [cursors, setCursors] = useState<Cursor[]>([]);
+  let cursors: Cursor[] = [];
 
   /* Create socket */
   useEffect(() => {
@@ -54,7 +54,9 @@ function App() {
   useEffect(() => {
     if(midpointCoordinate) {
       setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate}) : undefined);
+      console.log('before', cursors);
       cursors.forEach((c) => c.rotation = getPolarDegree({x: c.x, y: c.y}, midpointCoordinate))
+      console.log('after', cursors);
     }
   }, [midpointCoordinate, cursors]);
 
@@ -71,7 +73,8 @@ function App() {
           setName(e.target.value)
         }} />
         { socket && cursors.length !== 0 && midpointCoordinate && cursors.map((c: Cursor, index) => {
-          if(socket.id && c.socket === socket.id) return null          
+          if(socket.id && c.socket === socket.id) return null
+          console.log(c)          
           return (
             <div key={index} style={{ position: 'absolute', top: c ? c.y -12 : undefined, left: c ? c.x -12 : undefined}}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${c.rotation + 'deg'})`, transformOrigin: 'center center'}}>
