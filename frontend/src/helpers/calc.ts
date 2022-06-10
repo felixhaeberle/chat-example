@@ -1,7 +1,5 @@
 import { Cursor } from './../types/index';
-export const getPolarDegree = (cursor: {x: number; y: number}, midpoint: {x: number; y: number}): number => {
-  console.log('invoke');
-  
+export const getPolarDegree = (cursor: {x: number; y: number}, midpoint: {x: number; y: number}): number => {  
   /* Degree */
   let polarX: number;
   let polarY: number;

@@ -4,6 +4,7 @@ export interface Cursor {
   socket: string;
   name: string;
   color: string;
+  rotation: number;
   midpoint: {
     x: number,
     y: number
