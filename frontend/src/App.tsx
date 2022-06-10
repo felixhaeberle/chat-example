@@ -55,7 +55,9 @@ function App() {
     if(midpointCoordinate) {
       setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate}) : undefined);
       console.log('before', cursors);
-      cursors.forEach((c) => c.rotation = getPolarDegree({x: c.x, y: c.y}, midpointCoordinate))
+      cursors.forEach((c) => {
+        c.rotation = getPolarDegree({x: c.x, y: c.y}, midpointCoordinate)
+      });
       console.log('after', cursors);
     }
   }, [midpointCoordinate, cursors]);
