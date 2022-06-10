@@ -15,7 +15,7 @@ function App() {
   const [cursorPosition, setCursorPosition] = useState<Cursor>();
   const [name, setName] = useState('');
   // eslint-disable-next-line
-  let cursors: Cursor[] = [];
+  const [cursors, setCursors] = useState<Cursor[]>([]);
 
   /* Create socket */
   useEffect(() => {
@@ -93,6 +93,7 @@ function App() {
                 </svg>
               </div>
               {c.name !== '' ? <span>{ c.name }</span> : null} 
+              {c.rotation}
             </div>
           )
         }) }
