@@ -51,7 +51,9 @@ function App() {
     if (cursors) {
       setMidpointCoordinate(calculateMidpointCoordinates(cursors))
     }
-    setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', rotation: cursorPosition ? getPolarDegree({x: cursorPosition?.x, y: cursorPosition.y}, midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}) : 0, color: cursorPosition?.color ? cursorPosition?.color : '', midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}});
+    if (midpointCoordinate) {
+      setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', rotation: cursorPosition ? getPolarDegree({x: cursorPosition?.x, y: cursorPosition.y}, midpointCoordinate) : 0, color: cursorPosition?.color ? cursorPosition?.color : '', midpoint: midpointCoordinate});
+    }
   }
 
   return (
