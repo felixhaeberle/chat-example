@@ -10,17 +10,6 @@ export interface Cursor {
   }
 }
 
-export interface cursorPositionType {
-  x: number; 
-  y: number; 
-  socket: string; 
-  name: string; 
-  midpoint: {
-    x: number,
-    y: number
-  }
-}
-
 export interface midpointType {
   x: number; 
   y: number;

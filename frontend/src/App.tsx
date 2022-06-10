@@ -1,4 +1,4 @@
-import { Cursor, cursorPositionType, midpointType } from "./types";
+import { Cursor, midpointType } from "./types";
 import React, { useEffect, useState } from "react";
 import { calculateMidpointCoordinates, getPolarDegree } from "./helpers/calc";
 // @ts-ignore
@@ -12,7 +12,7 @@ const ENDPOINT = process.env.NODE_ENV === "development" ? "http://localhost:4001
 
 function App() {
   const [midpointCoordinate, setMidpointCoordinate] = useState<midpointType>();
-  const [cursorPosition, setCursorPosition] = useState<cursorPositionType>();
+  const [cursorPosition, setCursorPosition] = useState<Cursor>();
   const [name, setName] = useState('');
   // eslint-disable-next-line
   const [cursors, setCursors] = useState<Cursor[]>([]);
@@ -22,29 +22,23 @@ function App() {
   }, [])
 
   useEffect(() => {
-    socket.on("cursor_position_update", data => {
+    socket.on("cursor_position_update", (data: Cursor) => {
+      console.log(cursors)
       if(data && data.socket) {
         let index = cursors.findIndex((el) => el.socket === data.socket);
-        if(cursors[index] !== undefined) {
+        if(cursors[index]) {
           console.log(cursors[index]);
           cursors[index].x = data.x;
           cursors[index].y = data.y;
           cursors[index].name = data.name;
           cursors[index].color = getSimilarColors(stringToColor(String(cursors[index].socket)));
           cursors[index].midpoint = data.midpoint;
-        } else if (data.socket) {
+        } else if(data.socket) {
           cursors.push(data);
         }
       }
     })
   }, [cursors]);
-
-  const handleMouseChange = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (cursors) {
-      setMidpointCoordinate(calculateMidpointCoordinates(cursors))
-    }
-    setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}});
-  }
 
   useEffect(() => {
     setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}}) : undefined);
@@ -53,6 +47,13 @@ function App() {
   useEffect(() => {
     socket.emit("cursor_position", cursorPosition);
   }, [cursorPosition])
+
+  const handleMouseChange = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (cursors) {
+      setMidpointCoordinate(calculateMidpointCoordinates(cursors))
+    }
+    setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', color: cursorPosition?.color ? cursorPosition?.color : '', midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}});
+  }
 
   return (
     <>
@@ -63,9 +64,10 @@ function App() {
         }} />
         { socket && cursors.length !== 0 && midpointCoordinate && cursors.map((c: Cursor) => {
           if(socket.id && c.socket === socket.id) return null
+          const rotation = getPolarDegree(c, midpointCoordinate)
           return (
             <div style={{ position: 'absolute', top: c ? c.y -12 : undefined, left: c ? c.x -12 : undefined}}>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${getPolarDegree(c, midpointCoordinate) + 'deg'})`, transformOrigin: 'center center'}}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${rotation + 'deg'})`, transformOrigin: 'center center'}}>
                 <svg
                   style={{ height:'24', width: '24' }}
                   xmlns="http://www.w3.org/2000/svg"
