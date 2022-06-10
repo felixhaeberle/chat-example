@@ -1,4 +1,6 @@
+import { Cursor, cursorPositionType, midpointType } from "./types";
 import React, { useEffect, useState } from "react";
+import { calculateMidpointCoordinates, getPolarDegree } from "./helpers/calc";
 // @ts-ignore
 import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io, { Socket } from "socket.io-client";
@@ -7,34 +9,6 @@ let socket: Socket;
 const ENDPOINT = process.env.NODE_ENV === "development" ? "http://localhost:4001" : "https://collaboration-lab.herokuapp.com/";
 // create random user
 //const user = "User_" + String(new Date().getTime()).substring(-3);
-
-interface Cursor {
-  x: number;
-  y: number;
-  socket: string;
-  name: string;
-  color: string;
-  midpoint: {
-    x: number,
-    y: number
-  }
-}
-
-interface cursorPositionType {
-  x: number; 
-  y: number; 
-  socket: string; 
-  name: string; 
-  midpoint: {
-    x: number,
-    y: number
-  }
-}
-
-interface midpointType {
-  x: number; 
-  y: number;
-}
 
 function App() {
   const [midpointCoordinate, setMidpointCoordinate] = useState<midpointType>();
@@ -49,98 +23,36 @@ function App() {
 
   useEffect(() => {
     socket.on("cursor_position_update", data => {
-      let index = cursors.findIndex((el) => el.socket === data.socket);
-      console.log(cursors[index]);
-      if(cursors[index] !== undefined) {
-        console.log(cursors[index]);
-        cursors[index].x = data.x;
-        cursors[index].y = data.y;
-        cursors[index].name = data.name;
-        cursors[index].color = getSimilarColors(stringToColor(String(cursors[index].socket)));
-        cursors[index].midpoint = data.midpoint;
-      } else if (data.socket) {
-        cursors.push(data);
+      if(data && data.socket) {
+        let index = cursors.findIndex((el) => el.socket === data.socket);
+        if(cursors[index] !== undefined) {
+          console.log(cursors[index]);
+          cursors[index].x = data.x;
+          cursors[index].y = data.y;
+          cursors[index].name = data.name;
+          cursors[index].color = getSimilarColors(stringToColor(String(cursors[index].socket)));
+          cursors[index].midpoint = data.midpoint;
+        } else if (data.socket) {
+          cursors.push(data);
+        }
       }
-      console.log(cursors);
     })
   }, [cursors]);
 
-  const getPolarDegree = (cursor: {x: number; y: number}, midpoint: {x: number; y: number}): number => {
-    console.log('invoke');
-    
-    /* Degree */
-    let polarX: number;
-    let polarY: number;
-    let polarDegree: number = 0;
-    // First case
-    if(midpoint && cursor) {
-      if (midpoint.x < cursor.x && midpoint.y < cursor.y) {
-        polarX = cursor.x - midpoint.x;
-        polarY = cursor.y - midpoint.y;
-        console.log('first', polarX, polarY);
-        polarDegree = ~~(Math.atan(polarY/polarX) * (180/Math.PI) + 180)
-      }
-      // Second Case
-      if (midpoint.x > cursor.x && midpoint.y < cursor.y) {   
-        polarX = midpoint.x - cursor.x;
-        polarY = midpoint.y - cursor.y;
-        console.log('second', polarX, polarY);
-        polarDegree = ~~(Math.atan(polarY/polarX) * (180/Math.PI))
-      }
-      // Third Case
-      if(midpoint.x < cursor.x && midpoint.y > cursor.y) {
-        polarX = cursor.x - midpoint.x;
-        polarY = cursor.y - midpoint.y;
-        console.log('third', polarX, polarY);
-        polarDegree = ~~(Math.atan(polarY/polarX) * (180/Math.PI) + 180)
-      }
-      // Forth case
-      if(midpoint.x > cursor.x && midpoint.y > cursor.y) {
-        polarX = midpoint.x - cursor.x;
-        polarY = midpoint.y - cursor.y;
-        console.log('forth', polarX, polarY);
-        polarDegree = ~~(Math.atan(polarY/polarX) * (180/Math.PI))
-      }
-      /* Overlapping values */
-      if (midpoint.x === cursor.x && midpoint.y > cursor.y) {
-        return -270 // Bottom
-      } else if (midpoint.x === cursor.x && midpoint.y < cursor.y) {
-        return -90; // Top
-      } else if (midpoint.x === cursor.x && midpoint.y === cursor.y) {
-        return 180; // Middle
-      } else if (midpoint.y === cursor.y && midpoint.x < cursor.x) {
-        return -180; // Left
-      } else if (midpoint.y === cursor.y && midpoint.x > cursor.x) {
-        return 0; // Right
-      }
-    }
-
-    return polarDegree;
-  }
-
-  const calculateMidpointCoordinates = (cursors: Cursor[]) => {
-    /* Coordinates */
-    let x = 0;
-    let y = 0;
-    cursors.map((cursor) => x = x + cursor.x);
-    cursors.map((cursor) => y = y + cursor.y);
-    /* Set values */
-    setMidpointCoordinate({x: x/cursors.length, y: y/cursors.length})
-  }
-
   const handleMouseChange = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (cursors.length > 0) {
-      calculateMidpointCoordinates(cursors)
+    if (cursors) {
+      setMidpointCoordinate(calculateMidpointCoordinates(cursors))
     }
     setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}});
-    socket.emit("cursor_position", cursorPosition);
   }
 
   useEffect(() => {
-    if(cursorPosition?.midpoint.x === 0) {
-      setCursorPosition({x: cursorPosition.x, y: cursorPosition.y, socket: socket.id, name: cursorPosition.name ? cursorPosition.name : '', midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}});
-    }
-  }, [cursorPosition, midpointCoordinate])
+    setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate ? midpointCoordinate : {x: 0, y: 0}}) : undefined);
+  }, [midpointCoordinate]);
+
+  useEffect(() => {
+    socket.emit("cursor_position", cursorPosition);
+  }, [cursorPosition])
 
   return (
     <>
@@ -149,8 +61,8 @@ function App() {
         <input value={name} onChange={(e) => {
           setName(e.target.value)
         }} />
-        { cursors.length !== 0 && midpointCoordinate && cursors.map((c: Cursor) => {
-          if(c.socket === socket.id) return null
+        { socket && cursors.length !== 0 && midpointCoordinate && cursors.map((c: Cursor) => {
+          if(socket.id && c.socket === socket.id) return null
           return (
             <div style={{ position: 'absolute', top: c ? c.y -12 : undefined, left: c ? c.x -12 : undefined}}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${getPolarDegree(c, midpointCoordinate) + 'deg'})`, transformOrigin: 'center center'}}>
