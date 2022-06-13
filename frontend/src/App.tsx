@@ -1,9 +1,11 @@
 import { Cursor, midpointType } from "./types";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { calculateMidpointCoordinates, getPolarDegree } from "./helpers/calc";
 // @ts-ignore
 import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io, { Socket } from "socket.io-client";
+
+import produce from "immer";
 
 let socket: Socket;
 const ENDPOINT = process.env.NODE_ENV === "development" ? "http://localhost:4001" : "https://collaboration-lab.herokuapp.com/";
@@ -17,6 +19,25 @@ function App() {
   // eslint-disable-next-line
   const [cursors, setCursors] = useState<Cursor[]>([]);
 
+  const handleCursors = useCallback((data: Cursor) => {
+    setCursors(
+      produce((draft) => {
+        if(data && data.socket) {
+          const cursor = draft.find((el) => el.socket === data.socket);
+          if(cursor) {
+            cursor.x = data.x;
+            cursor.y = data.y;
+            cursor.name = data.name;
+            cursor.color = data.color;
+            cursor.midpoint = data.midpoint;
+          } else {
+            setCursors([...cursors, data])
+          }
+        }
+      })
+    );
+  }, [cursors]);
+
   /* Create socket */
   useEffect(() => {
     socket = io(ENDPOINT);
@@ -25,20 +46,9 @@ function App() {
   /* Apply data to cursors */
   useEffect(() => {
     socket.on("cursor_position_update", (data: Cursor) => {
-      if(data && data.socket) {
-        let index = cursors.findIndex((el) => el.socket === data.socket);
-        if(cursors[index]) {
-          cursors[index].x = data.x;
-          cursors[index].y = data.y;
-          cursors[index].name = data.name;
-          cursors[index].color = getSimilarColors(stringToColor(String(cursors[index].socket)));
-          cursors[index].midpoint = data.midpoint;
-        } else if(data.socket) {
-          cursors.push(data);
-        }
-      }
+      handleCursors(data);
     })
-  }, [cursors]);
+  }, [cursors, handleCursors]);
 
   /* Update midpoint and cursor */
   const handleMouseChange = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -46,7 +56,7 @@ function App() {
       setMidpointCoordinate(calculateMidpointCoordinates(cursors))
     }
     if (midpointCoordinate) {
-      setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', rotation: 0, color: cursorPosition?.color ? cursorPosition?.color : '', midpoint: {x: 0, y: 0}});
+      setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', rotation: 0, color: cursorPosition?.color ? cursorPosition?.color : getSimilarColors(stringToColor(String(socket.id))), midpoint: midpointCoordinate});
     }
   }
 
@@ -54,13 +64,8 @@ function App() {
   useEffect(() => {
     if(midpointCoordinate) {
       setCursorPosition(prevState => prevState ? ({...prevState, midpoint: midpointCoordinate}) : undefined);
-      console.log('before', cursors);
-      cursors.forEach((c) => {
-        c.rotation = getPolarDegree({x: c.x, y: c.y}, midpointCoordinate)
-      });
-      console.log('after', cursors);
     }
-  }, [midpointCoordinate, cursors]);
+  }, [midpointCoordinate]);
 
   /* Emit message with cursor */
   useEffect(() => {
@@ -79,7 +84,7 @@ function App() {
           console.log(c)          
           return (
             <div key={index} style={{ position: 'absolute', top: c ? c.y -12 : undefined, left: c ? c.x -12 : undefined}}>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${c.rotation + 'deg'})`, transformOrigin: 'center center'}}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${getPolarDegree({x: c.x, y: c.y}, midpointCoordinate) + 'deg'})`, transformOrigin: 'center center'}}>
                 <svg
                   style={{ height:'24', width: '24' }}
                   xmlns="http://www.w3.org/2000/svg"
