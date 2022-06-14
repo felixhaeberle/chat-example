@@ -4,14 +4,19 @@ export interface Cursor {
   socket: string;
   name: string;
   color: string;
-  rotation: number;
-  midpoint: {
-    x: number;
-    y: number;
-  };
+  rotation: number | undefined;
+  type: CursorType;
+  midpoint:
+    | {
+        x: number;
+        y: number;
+      }
+    | undefined;
 }
 
 export interface midpointType {
   x: number;
   y: number;
 }
+
+export type CursorType = "rotation" | "game" | "handshake" | "polo" | undefined;

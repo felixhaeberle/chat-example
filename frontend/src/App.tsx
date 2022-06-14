@@ -1,4 +1,4 @@
-import { Cursor, midpointType } from "./types";
+import { Cursor, CursorType, midpointType } from "./types";
 import React, { useCallback, useEffect, useState } from "react";
 // @ts-ignore
 import { getSimilarColors, stringToColor } from "./helpers/colors";
@@ -17,10 +17,18 @@ const ENDPOINT =
 
 function App() {
   const [midpointCoordinate, setMidpointCoordinate] = useState<midpointType>();
-  const [cursorPosition, setCursorPosition] = useState<Cursor>();
+  const [cursorType, setCursorType] = useState<CursorType>("rotation");
+  const [cursor, setCursor] = useState<Cursor>();
   const [name, setName] = useState("");
   // eslint-disable-next-line
   const [cursors, setCursors] = useState<Cursor[]>([]);
+
+  const handleCursorType = (type: CursorType) => {
+    console.log("cursor type changed");
+
+    // set own environment
+    setCursorType(type);
+  };
 
   const handleCursors = useCallback(
     (data: Cursor) => {
@@ -53,45 +61,60 @@ function App() {
   useEffect(() => {
     socket.on("cursor_position_update", (data: Cursor) => {
       handleCursors(data);
+      if (data && data.type) {
+        setCursorType(data.type);
+      }
     });
   }, [cursors, handleCursors]);
 
   /* Update midpoint and cursor */
   const handleMouseChange = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log("mouse event");
+
     if (cursors) {
       setMidpointCoordinate(calculateMidpointCoordinates(cursors));
     }
     if (midpointCoordinate) {
-      setCursorPosition({
+      setCursor({
         x: e.pageX,
         y: e.pageY,
         socket: socket.id,
         name: name ? name : "",
-        rotation: 0 /* getPolarDegree({x: e.pageX, y: e.pageY}, midpointCoordinate)*/,
-        color: cursorPosition?.color
-          ? cursorPosition?.color
+        rotation: 0,
+        color: cursor?.color
+          ? cursor?.color
           : getSimilarColors(stringToColor(String(socket.id))),
         midpoint: midpointCoordinate,
+        type: cursorType,
       });
     }
   };
 
-  /* Update cursors with midpoint and rotation */
-  useEffect(() => {
-    if (midpointCoordinate) {
-      setCursorPosition((prevState) =>
-        prevState ? { ...prevState, midpoint: midpointCoordinate } : undefined
-      );
-    }
-  }, [midpointCoordinate]);
-
   /* Emit message with cursor */
   useEffect(() => {
-    socket.emit("cursor_position", cursorPosition);
-  }, [cursorPosition]);
+    socket.emit("cursor_position", cursor);
+  }, [cursor]);
+
+  /* Update cursors type when changed */
+  React.useEffect(() => {
+    console.log("type of all cursors changed");
+    // Set other cursors
+    console.log(cursorType);
+    setCursors((prevState) =>
+      prevState.map((cursor) => {
+        return { ...cursor, type: cursorType };
+      })
+    );
+  }, [cursorType]);
 
   return (
     <>
+      <div>
+        <span onClick={() => handleCursorType("rotation")}>Rotation</span>
+        <span onClick={() => handleCursorType("handshake")}>Handshake</span>
+        <span onClick={() => handleCursorType("game")}>Game</span>
+        <span onClick={() => handleCursorType("polo")}>Polonaise</span>
+      </div>
       <div
         style={{ height: "100vh", width: "100vw" }}
         onMouseMove={handleMouseChange}
