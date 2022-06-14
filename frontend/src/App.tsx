@@ -5,7 +5,6 @@ import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io, { Socket } from "socket.io-client";
 
 import Name from "./components/Name";
-import Rotation from "./components/Rotation";
 import RotationExample from "./components/RotationExample";
 import Select from "./components/Select";
 import { calculateMidpointCoordinates } from "./helpers/calc";
@@ -24,13 +23,6 @@ function App() {
   const [name, setName] = useState("");
   // eslint-disable-next-line
   const [cursors, setCursors] = useState<Cursor[]>([]);
-
-  const handleCursorType = (type: CursorType) => {
-    console.log("cursor type changed");
-
-    // set own environment
-    setCursorType(type);
-  };
 
   const handleCursors = useCallback(
     (data: Cursor) => {
