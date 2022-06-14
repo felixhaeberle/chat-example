@@ -19,7 +19,7 @@ const Rotation: React.FC<RotationProps> = ({
   return (
     <>
       {cursors.map((c: Cursor, index) => {
-        if (socket.id && c.socket === socket.id) return null;
+        //if (socket.id && c.socket === socket.id) return null;
         return <Mouse {...{ c, index, midpointCoordinate }} />;
       })}
     </>

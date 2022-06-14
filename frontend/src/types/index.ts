@@ -19,4 +19,9 @@ export interface midpointType {
   y: number;
 }
 
-export type CursorType = "rotation" | "game" | "handshake" | "polo" | undefined;
+export type CursorType =
+  | "rotation"
+  | "game"
+  | "handshake"
+  | "polonaise"
+  | undefined;

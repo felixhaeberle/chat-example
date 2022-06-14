@@ -6,6 +6,8 @@ import io, { Socket } from "socket.io-client";
 
 import Name from "./components/Name";
 import Rotation from "./components/Rotation";
+import RotationExample from "./components/RotationExample";
+import Select from "./components/Select";
 import { calculateMidpointCoordinates } from "./helpers/calc";
 import produce from "immer";
 
@@ -109,19 +111,25 @@ function App() {
 
   return (
     <>
-      <div>
-        <span onClick={() => handleCursorType("rotation")}>Rotation</span>
-        <span onClick={() => handleCursorType("handshake")}>Handshake</span>
-        <span onClick={() => handleCursorType("game")}>Game</span>
-        <span onClick={() => handleCursorType("polo")}>Polonaise</span>
+      <div className="fixed top-5 w-full px-4 sm:px-6 lg:px-8">
+        <span className="font-medium text-gray-500 hover:text-gray-900">
+          Collaboration Lab
+        </span>
+      </div>
+      <div className="fixed bottom-10 w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-end">
+          <Name {...{ name, setName }} />
+          <Select {...{ activeType: cursorType, setCursorType }} />
+        </div>
       </div>
       <div
         style={{ height: "100vh", width: "100vw" }}
         onMouseMove={handleMouseChange}
       >
-        <Name {...{ name, setName }} />
         {socket && cursors.length !== 0 && midpointCoordinate && (
-          <Rotation {...{ cursors, midpointCoordinate, socket }} />
+          <RotationExample
+            {...{ cursors, midpointCoordinate, socket, setCursor }}
+          />
         )}
       </div>
     </>
