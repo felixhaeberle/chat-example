@@ -1,16 +1,17 @@
 import { Cursor, midpointType } from "./types";
 import React, { useCallback, useEffect, useState } from "react";
-import { calculateMidpointCoordinates, getPolarDegree } from "./helpers/calc";
 // @ts-ignore
 import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io, { Socket } from "socket.io-client";
 
+import Mouse from "./components/Mouse";
+import Name from "./components/Name";
+import Rotation from "./components/Rotation";
+import { calculateMidpointCoordinates } from "./helpers/calc";
 import produce from "immer";
 
 let socket: Socket;
 const ENDPOINT = process.env.NODE_ENV === "development" ? "http://localhost:4001" : "https://collaboration-lab.herokuapp.com/";
-// create random user
-//const user = "User_" + String(new Date().getTime()).substring(-3);
 
 function App() {
   const [midpointCoordinate, setMidpointCoordinate] = useState<midpointType>();
@@ -56,7 +57,7 @@ function App() {
       setMidpointCoordinate(calculateMidpointCoordinates(cursors))
     }
     if (midpointCoordinate) {
-      setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', rotation: 0, color: cursorPosition?.color ? cursorPosition?.color : getSimilarColors(stringToColor(String(socket.id))), midpoint: midpointCoordinate});
+      setCursorPosition({x: e.pageX, y: e.pageY, socket: socket.id, name: name ? name : '', rotation: 0 /* getPolarDegree({x: e.pageX, y: e.pageY}, midpointCoordinate)*/, color: cursorPosition?.color ? cursorPosition?.color : getSimilarColors(stringToColor(String(socket.id))), midpoint: midpointCoordinate});
     }
   }
 
@@ -75,35 +76,8 @@ function App() {
   return (
     <>
       <div style={{ height: '100vh', width: '100vw'}} onMouseMove={handleMouseChange}>
-        <label>Your name</label>
-        <input value={name} onChange={(e) => {
-          setName(e.target.value)
-        }} />
-        { socket && cursors.length !== 0 && midpointCoordinate && cursors.map((c: Cursor, index) => {
-          if(socket.id && c.socket === socket.id) return null
-          console.log(c)          
-          return (
-            <div key={index} style={{ position: 'absolute', top: c ? c.y -12 : undefined, left: c ? c.x -12 : undefined}}>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '24px', width: '24px', border: '1px solid red',transform: `rotate(${getPolarDegree({x: c.x, y: c.y}, midpointCoordinate) + 'deg'})`, transformOrigin: 'center center'}}>
-                <svg
-                  style={{ height:'24', width: '24' }}
-                  xmlns="http://www.w3.org/2000/svg"
-                  x="0"
-                  y="0"
-                  version="1.1"
-                  viewBox="0 0 24 24"
-                  xmlSpace="preserve"
-                  strokeWidth={2}
-                  stroke={'#' + c.color}
-                >
-                  <path fill={'#' + c.color} strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                </svg>
-              </div>
-              {c.name !== '' ? <span>{ c.name }</span> : null} 
-              {c.rotation}
-            </div>
-          )
-        }) }
+        <Name {...{name, setName}} />
+        { socket && cursors.length !== 0 && midpointCoordinate && <Rotation {...{cursors, midpointCoordinate, socket}} />}
       </div>
     </>
   );
