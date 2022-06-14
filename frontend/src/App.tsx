@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io, { Socket } from "socket.io-client";
 
-import Mouse from "./components/Mouse";
 import Name from "./components/Name";
 import Rotation from "./components/Rotation";
 import { calculateMidpointCoordinates } from "./helpers/calc";
