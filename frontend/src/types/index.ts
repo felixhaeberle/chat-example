@@ -6,12 +6,12 @@ export interface Cursor {
   color: string;
   rotation: number;
   midpoint: {
-    x: number,
-    y: number
-  }
+    x: number;
+    y: number;
+  };
 }
 
 export interface midpointType {
-  x: number; 
+  x: number;
   y: number;
 }
