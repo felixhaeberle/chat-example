@@ -56,7 +56,7 @@ function App() {
     socket.on("cursor_position_update", (data: Cursor) => {
       handleCursors(data);
       if (data && data.type) {
-        setCursorType(data.type);
+        setCursorType((prevState) => prevState !== data.type ? data.type : prevState);
       }
     });
   }, [cursors, handleCursors]);
@@ -93,13 +93,22 @@ function App() {
   React.useEffect(() => {
     console.log("type of all cursors changed");
     // Set other cursors
-    console.log(cursorType);
+    console.log('effect', cursorType);
     setCursors((prevState) =>
       prevState.map((cursor) => {
         return { ...cursor, type: cursorType };
       })
     );
   }, [cursorType]);
+
+  /* Update cursors with midpoint and rotation */
+  React.useEffect(() => {
+    if (midpointCoordinate) {
+      setCursor((prevState) =>
+        prevState ? { ...prevState, midpoint: midpointCoordinate } : undefined
+      );
+    }
+  }, [midpointCoordinate, setCursor]);
 
   return (
     <>
@@ -118,10 +127,27 @@ function App() {
         style={{ height: "100vh", width: "100vw" }}
         onMouseMove={handleMouseChange}
       >
-        {socket && cursors.length !== 0 && midpointCoordinate && (
-          <RotationExample
-            {...{ cursors, midpointCoordinate, socket, setCursor }}
-          />
+        {socket && cursors.length !== 0 && (
+          <>
+            {cursorType === 'rotation' && (
+              <>
+                {midpointCoordinate && (
+                  <RotationExample
+                    {...{ cursors, midpointCoordinate, socket }}
+                  />
+                )}
+              </>
+            )}
+            {cursorType === 'game' && (
+              <>
+                {midpointCoordinate && (
+                  <RotationExample
+                    {...{ cursors, midpointCoordinate, socket }}
+                  />
+                )}
+              </>
+            )}
+          </>
         )}
       </div>
     </>

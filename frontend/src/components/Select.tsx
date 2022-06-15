@@ -28,6 +28,8 @@ const Select: React.FC<SelectProps> = ({ activeType, setCursorType }) => {
 
           // Uppercase first letter
           const name = capitalizeFirstLetter(c);
+          console.log(c, index);
+          
 
           // Left button
           if (index === 0)

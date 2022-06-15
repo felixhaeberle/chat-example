@@ -5,13 +5,13 @@ import { Cursor, midpointType } from "../types";
 import Mouse from "./Mouse";
 import { Socket } from "socket.io-client";
 
-interface RotationExampleProps {
+interface GameExampleProps {
   cursors: Cursor[];
   midpointCoordinate: midpointType;
   socket: Socket;
 }
 
-const RotationExample: React.FC<RotationExampleProps> = ({
+const GameExample: React.FC<GameExampleProps> = ({
   cursors,
   midpointCoordinate,
   socket,
@@ -26,4 +26,4 @@ const RotationExample: React.FC<RotationExampleProps> = ({
   );
 };
 
-export default RotationExample;
+export default GameExample;
