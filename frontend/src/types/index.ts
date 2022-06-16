@@ -6,6 +6,7 @@ export interface Cursor {
   color: string;
   rotation: number | undefined;
   type: CursorType;
+  gameStarted: boolean | undefined;
   weapon: Weapon;
   midpoint:
     | {

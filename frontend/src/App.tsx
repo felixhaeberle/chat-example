@@ -26,8 +26,11 @@ function App() {
   const [cursors, setCursors] = useState<Cursor[]>([]);
 
   // Game
-  const [gameStarted, setGameStarted] = React.useState<boolean>(false);
+  const [gameStarted, setGameStarted] = React.useState<boolean | undefined>(
+    undefined
+  );
   const [weapon, setWeapon] = React.useState<Weapon>(undefined);
+  const [players, setPlayers] = useState<string[]>([]);
 
   const handleCursors = useCallback(
     (data: Cursor) => {
@@ -42,6 +45,7 @@ function App() {
               cursor.color = data.color;
               cursor.midpoint = data.midpoint;
               cursor.weapon = data.weapon;
+              cursor.gameStarted = data.gameStarted;
             } else {
               setCursors([...cursors, data]);
             }
@@ -89,6 +93,7 @@ function App() {
         midpoint: midpointCoordinate,
         type: cursorType,
         weapon: weapon,
+        gameStarted: gameStarted,
       });
     }
   };
@@ -102,7 +107,6 @@ function App() {
   React.useEffect(() => {
     console.log("type of all cursors changed");
     // Set other cursors
-    console.log("effect", cursorType);
     setCursors((prevState) =>
       prevState.map((cursor) => {
         return { ...cursor, type: cursorType };
@@ -119,18 +123,46 @@ function App() {
     }
   }, [midpointCoordinate, setCursor]);
 
-  /* Update cursors with midpoint and rotation */
+  /* Update cursors with weapon */
   React.useEffect(() => {
-    if (weapon) {
-      setCursor((prevState) =>
-        prevState ? { ...prevState, weapon: weapon } : undefined
-      );
+    if (cursorType === "game") {
+      if (weapon) {
+        setCursor((prevState) =>
+          prevState ? { ...prevState, weapon: weapon } : undefined
+        );
+      }
     }
-  }, [weapon, setCursor]);
+  }, [cursorType, weapon]);
+
+  //c2.x === c1.x || c2.y === c1.y
+
+  /* Collision detetion */
+  useEffect(() => {
+    if (cursorType === "game") {
+      if (cursors.length > 1) {
+        cursors.forEach((c1) => {
+          cursors.forEach((c2) => {
+            if (c1.socket === c2.socket) return;
+            let x = c1.x - c2.x;
+            let y = c1.y - c2.y;
+            let diff = Math.sqrt(x * x + y * y);
+            if (diff < 50 + 50) {
+              setPlayers([c1.socket, c2.socket]);
+            }
+          });
+        });
+      }
+    }
+  }, [cursors, cursorType]);
 
   useEffect(() => {
-    console.log(weapon);
-  }, [weapon]);
+    if (cursorType === "game") {
+      console.log(players);
+      if (players.length === 2 && players.find((id) => id === socket.id)) {
+        setGameStarted(true);
+      }
+    }
+  }, [players, cursorType]);
 
   return (
     <>
@@ -166,10 +198,10 @@ function App() {
                   <GameExample
                     {...{
                       cursors,
-                      midpointCoordinate,
                       socket,
                       weapon,
                       setWeapon,
+                      gameStarted,
                     }}
                   />
                 )}

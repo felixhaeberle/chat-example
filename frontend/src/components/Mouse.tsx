@@ -7,7 +7,7 @@ import { getPolarDegree } from "../helpers/calc";
 interface MouseProps {
   c: Cursor;
   index: number;
-  midpointCoordinate: midpointType;
+  midpointCoordinate?: midpointType;
 }
 
 const Mouse: React.FC<MouseProps> = ({ c, index, midpointCoordinate }) => {
@@ -27,10 +27,11 @@ const Mouse: React.FC<MouseProps> = ({ c, index, midpointCoordinate }) => {
           alignItems: "center",
           height: "24px",
           width: "24px",
-          border: "1px solid red",
-          transform: `rotate(${
-            getPolarDegree({ x: c.x, y: c.y }, midpointCoordinate) + "deg"
-          })`,
+          transform: midpointCoordinate
+            ? `rotate(${
+                getPolarDegree({ x: c.x, y: c.y }, midpointCoordinate) + "deg"
+              })`
+            : "rotate(-135deg)",
           transformOrigin: "center center",
         }}
       >
