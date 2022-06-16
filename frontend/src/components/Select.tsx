@@ -28,14 +28,13 @@ const Select: React.FC<SelectProps> = ({ activeType, setCursorType }) => {
 
           // Uppercase first letter
           const name = capitalizeFirstLetter(c);
-          console.log(c, index);
-          
 
           // Left button
           if (index === 0)
             return (
               <button
                 type="button"
+                key={c}
                 onClick={() => setCursorType(c)}
                 className={`relative inline-flex items-center px-4 py-2 rounded-l-md border ${
                   activeType === c
@@ -51,6 +50,7 @@ const Select: React.FC<SelectProps> = ({ activeType, setCursorType }) => {
             return (
               <button
                 type="button"
+                key={c}
                 onClick={() => setCursorType(c)}
                 className={`-ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border ${
                   activeType === c
@@ -65,6 +65,7 @@ const Select: React.FC<SelectProps> = ({ activeType, setCursorType }) => {
           return (
             <button
               type="button"
+              key={c}
               onClick={() => setCursorType(c)}
               className={`-ml-px relative inline-flex items-center px-4 py-2 border ${
                 activeType === c

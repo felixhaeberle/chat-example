@@ -1,9 +1,10 @@
-import { Cursor, CursorType, midpointType } from "./types";
+import { Cursor, CursorType, Weapon, midpointType } from "./types";
 import React, { useCallback, useEffect, useState } from "react";
 // @ts-ignore
 import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io, { Socket } from "socket.io-client";
 
+import GameExample from "./components/GameExample";
 import Name from "./components/Name";
 import RotationExample from "./components/RotationExample";
 import Select from "./components/Select";
@@ -24,6 +25,10 @@ function App() {
   // eslint-disable-next-line
   const [cursors, setCursors] = useState<Cursor[]>([]);
 
+  // Game
+  const [gameStarted, setGameStarted] = React.useState<boolean>(false);
+  const [weapon, setWeapon] = React.useState<Weapon>(undefined);
+
   const handleCursors = useCallback(
     (data: Cursor) => {
       setCursors(
@@ -36,6 +41,7 @@ function App() {
               cursor.name = data.name;
               cursor.color = data.color;
               cursor.midpoint = data.midpoint;
+              cursor.weapon = data.weapon;
             } else {
               setCursors([...cursors, data]);
             }
@@ -56,7 +62,9 @@ function App() {
     socket.on("cursor_position_update", (data: Cursor) => {
       handleCursors(data);
       if (data && data.type) {
-        setCursorType((prevState) => prevState !== data.type ? data.type : prevState);
+        setCursorType((prevState) =>
+          prevState !== data.type ? data.type : prevState
+        );
       }
     });
   }, [cursors, handleCursors]);
@@ -80,6 +88,7 @@ function App() {
           : getSimilarColors(stringToColor(String(socket.id))),
         midpoint: midpointCoordinate,
         type: cursorType,
+        weapon: weapon,
       });
     }
   };
@@ -93,7 +102,7 @@ function App() {
   React.useEffect(() => {
     console.log("type of all cursors changed");
     // Set other cursors
-    console.log('effect', cursorType);
+    console.log("effect", cursorType);
     setCursors((prevState) =>
       prevState.map((cursor) => {
         return { ...cursor, type: cursorType };
@@ -109,6 +118,19 @@ function App() {
       );
     }
   }, [midpointCoordinate, setCursor]);
+
+  /* Update cursors with midpoint and rotation */
+  React.useEffect(() => {
+    if (weapon) {
+      setCursor((prevState) =>
+        prevState ? { ...prevState, weapon: weapon } : undefined
+      );
+    }
+  }, [weapon, setCursor]);
+
+  useEffect(() => {
+    console.log(weapon);
+  }, [weapon]);
 
   return (
     <>
@@ -129,7 +151,7 @@ function App() {
       >
         {socket && cursors.length !== 0 && (
           <>
-            {cursorType === 'rotation' && (
+            {cursorType === "rotation" && (
               <>
                 {midpointCoordinate && (
                   <RotationExample
@@ -138,11 +160,17 @@ function App() {
                 )}
               </>
             )}
-            {cursorType === 'game' && (
+            {cursorType === "game" && (
               <>
                 {midpointCoordinate && (
-                  <RotationExample
-                    {...{ cursors, midpointCoordinate, socket }}
+                  <GameExample
+                    {...{
+                      cursors,
+                      midpointCoordinate,
+                      socket,
+                      weapon,
+                      setWeapon,
+                    }}
                   />
                 )}
               </>

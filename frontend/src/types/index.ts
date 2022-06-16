@@ -6,6 +6,7 @@ export interface Cursor {
   color: string;
   rotation: number | undefined;
   type: CursorType;
+  weapon: Weapon;
   midpoint:
     | {
         x: number;
@@ -25,3 +26,5 @@ export type CursorType =
   | "handshake"
   | "polonaise"
   | undefined;
+
+export type Weapon = "rock" | "scissor" | "paper" | undefined;
