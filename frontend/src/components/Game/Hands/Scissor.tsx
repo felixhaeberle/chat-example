@@ -1,18 +1,29 @@
 import * as React from "react";
 
+import { Cursor, Weapon } from "../../../types";
+
 import HandWrapper from "./HandWrapper";
-import { Weapon } from "../../../types";
 import { settings } from "./settings";
 
 interface ScissorProps {
   covered: boolean;
   weapon: Weapon;
   setWeapon?: (value: Weapon) => void;
+  winner: string | undefined;
+  c?: Cursor;
 }
 
-const Scissor: React.FC<ScissorProps> = ({ covered, weapon, setWeapon }) => {
+const Scissor: React.FC<ScissorProps> = ({
+  covered,
+  weapon,
+  setWeapon,
+  winner,
+  c,
+}) => {
   return (
-    <HandWrapper {...{ covered, type: "scissor", weapon, setWeapon }}>
+    <HandWrapper
+      {...{ covered, type: "scissor", weapon, setWeapon, winner, c }}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="80"

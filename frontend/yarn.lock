@@ -1992,6 +1992,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-lottie@^1.2.6":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@types/react-lottie/-/react-lottie-1.2.6.tgz#4f351dfdf5f93a46a3a9714fbb319f1e0f030eaf"
+  integrity sha512-fvGJHD7SeUdVESHo7f7erRnXkTWaa/6Mo5TB+R0/ieSftKoFspA4sMlF2qMH6BljXI7ehFJbBtrD5bzDxPCkGg==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@^18.0.12":
   version "18.0.12"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.12.tgz#cdaa209d0a542b3fcf69cf31a03976ec4cdd8840"
@@ -6041,6 +6048,11 @@ loose-envify@^1.1.0, loose-envify@^1.4.0:
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
+
+lottie-web@^5.9.4:
+  version "5.9.4"
+  resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.9.4.tgz#c01478ee5dd47f916cb4bb79040c11d427872d57"
+  integrity sha512-bSs1ZTPifnBVejO1MnQHdfrKfcn02YTCmgOh2wcAEICqRA0V7GzDh8FnwXY6+EzT+i8XOunaIloo/5xC5YNbsA==
 
 lower-case@^2.0.2:
   version "2.0.2"

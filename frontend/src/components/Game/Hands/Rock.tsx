@@ -1,18 +1,27 @@
 import * as React from "react";
 
+import { Cursor, Weapon } from "../../../types";
+
 import HandWrapper from "./HandWrapper";
-import { Weapon } from "../../../types";
 import { settings } from "./settings";
 
 interface RockProps {
   covered: boolean;
   weapon: Weapon;
   setWeapon?: (value: Weapon) => void;
+  winner: string | undefined;
+  c?: Cursor;
 }
 
-const Rock: React.FC<RockProps> = ({ covered, weapon, setWeapon }) => {
+const Rock: React.FC<RockProps> = ({
+  covered,
+  weapon,
+  setWeapon,
+  winner,
+  c,
+}) => {
   return (
-    <HandWrapper {...{ covered, type: "rock", weapon, setWeapon }}>
+    <HandWrapper {...{ covered, type: "rock", weapon, setWeapon, winner, c }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="80"

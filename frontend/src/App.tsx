@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { getSimilarColors, stringToColor } from "./helpers/colors";
 import io, { Socket } from "socket.io-client";
 
+import { Animation } from "./components/Game/Animation";
 import GameExample from "./components/GameExample";
 import Name from "./components/Name";
 import RotationExample from "./components/RotationExample";
@@ -32,6 +33,7 @@ function App() {
   );
   const [weapon, setWeapon] = React.useState<Weapon>(undefined);
   const [players, setPlayers] = useState<string[]>([]);
+  const [winner, setWinner] = useState<string | undefined>(undefined);
 
   const handleCursors = useCallback(
     (data: Cursor) => {
@@ -150,7 +152,6 @@ function App() {
 
             if (diff < 50 + 50) {
               setPlayers([c1.socket, c2.socket]);
-              //socket.emit('room', `room[${c1.socket}][${c2.socket}]`);
             }
           });
         });
@@ -173,7 +174,15 @@ function App() {
       const p1 = cursors.find((c) => c.socket === players[0]);
       const p2 = cursors.find((c) => c.socket === players[1]);
       if (p1 && p1.weapon && p2 && p2.weapon) {
-        console.log(getWinner(p1, p2));
+        const winner = getWinner(p1, p2);
+        if (winner) {
+          /* Set winner and reset weapon */
+          setWinner(winner.socket);
+          setWeapon(undefined);
+        } else {
+          /* Reset weapon */
+          setWeapon(undefined);
+        }
       }
     }
   }, [weapon, players, cursors]);
@@ -182,6 +191,8 @@ function App() {
   useEffect(() => {
     setGameStarted(false);
     setWeapon(undefined);
+    setWinner(undefined);
+    setPlayers([]);
   }, [cursorType]);
 
   return (
@@ -214,6 +225,7 @@ function App() {
             )}
             {cursorType === "game" && (
               <>
+                {winner && winner === socket.id && <Animation />}
                 {midpointCoordinate && (
                   <GameExample
                     {...{
@@ -222,6 +234,7 @@ function App() {
                       weapon,
                       setWeapon,
                       gameStarted,
+                      winner,
                     }}
                   />
                 )}

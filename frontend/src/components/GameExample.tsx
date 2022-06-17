@@ -14,6 +14,7 @@ interface GameExampleProps {
   setWeapon: (value: Weapon) => void;
   weapon: Weapon;
   gameStarted: boolean | undefined;
+  winner: string | undefined;
 }
 
 const GameExample: React.FC<GameExampleProps> = ({
@@ -22,6 +23,7 @@ const GameExample: React.FC<GameExampleProps> = ({
   setWeapon,
   weapon,
   gameStarted,
+  winner,
 }) => {
   return (
     <>
@@ -33,24 +35,26 @@ const GameExample: React.FC<GameExampleProps> = ({
               <div className="flex">
                 <div className="relative h-56 w-44 -mr-5">
                   <div className="absolute top-0 left-1/3">
-                    <Rock {...{ covered: true, weapon }} />
+                    <Rock {...{ covered: true, weapon, winner, c }} />
                   </div>
                   <div className="absolute top-1/3 left-0">
-                    <Scissor {...{ covered: true, weapon }} />
+                    <Scissor {...{ covered: true, weapon, winner, c }} />
                   </div>
                   <div className="absolute bottom-0 left-1/3">
-                    <Paper {...{ covered: true, weapon }} />
+                    <Paper {...{ covered: true, weapon, winner, c }} />
                   </div>
                 </div>
                 <div className="relative h-56 w-44 -ml-5">
                   <div className="absolute top-0 right-1/3">
-                    <Rock {...{ covered: false, weapon, setWeapon }} />
+                    <Rock {...{ covered: false, weapon, setWeapon, winner }} />
                   </div>
                   <div className="absolute top-1/3 right-0">
-                    <Scissor {...{ covered: false, weapon, setWeapon }} />
+                    <Scissor
+                      {...{ covered: false, weapon, setWeapon, winner }}
+                    />
                   </div>
                   <div className="absolute bottom-0 left-1/3">
-                    <Paper {...{ covered: false, weapon, setWeapon }} />
+                    <Paper {...{ covered: false, weapon, setWeapon, winner }} />
                   </div>
                 </div>
               </div>
