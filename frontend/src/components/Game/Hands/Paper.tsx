@@ -6,12 +6,13 @@ import { settings } from "./settings";
 
 interface PaperProps {
   covered: boolean;
+  weapon: Weapon;
   setWeapon?: (value: Weapon) => void;
 }
 
-const Paper: React.FC<PaperProps> = ({ covered, setWeapon }) => {
+const Paper: React.FC<PaperProps> = ({ covered, weapon, setWeapon }) => {
   return (
-    <HandWrapper {...{ covered, type: "paper", setWeapon }}>
+    <HandWrapper {...{ covered, type: "paper", weapon, setWeapon }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="80"

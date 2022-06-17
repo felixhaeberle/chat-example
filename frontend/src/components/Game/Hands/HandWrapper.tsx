@@ -6,6 +6,7 @@ interface HandWrapperProps {
   children: React.ReactNode;
   covered: boolean;
   type: Weapon;
+  weapon: Weapon;
   setWeapon?: (value: Weapon) => void;
 }
 
@@ -13,8 +14,10 @@ const HandWrapper: React.FC<HandWrapperProps> = ({
   children,
   covered,
   type,
+  weapon,
   setWeapon,
 }) => {
+  const isActive = type === weapon && !covered;
   return (
     <div
       onClick={
@@ -24,7 +27,9 @@ const HandWrapper: React.FC<HandWrapperProps> = ({
             }
           : undefined
       }
-      className="flex items-center justify-center border-2 rounded-full p-4 overflow-hidden relative"
+      className={`flex items-center justify-center border-2 ${
+        isActive ? "border-lime-500" : ""
+      } rounded-full p-4 overflow-hidden relative`}
     >
       {covered && (
         <div className="absolute h-28 w-28 bg-indigo-100 top-0 left-0"></div>

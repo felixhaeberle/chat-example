@@ -6,12 +6,13 @@ import { settings } from "./settings";
 
 interface ScissorProps {
   covered: boolean;
+  weapon: Weapon;
   setWeapon?: (value: Weapon) => void;
 }
 
-const Scissor: React.FC<ScissorProps> = ({ covered, setWeapon }) => {
+const Scissor: React.FC<ScissorProps> = ({ covered, weapon, setWeapon }) => {
   return (
-    <HandWrapper {...{ covered, type: "scissor", setWeapon }}>
+    <HandWrapper {...{ covered, type: "scissor", weapon, setWeapon }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="80"

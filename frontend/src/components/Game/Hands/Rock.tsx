@@ -6,12 +6,13 @@ import { settings } from "./settings";
 
 interface RockProps {
   covered: boolean;
+  weapon: Weapon;
   setWeapon?: (value: Weapon) => void;
 }
 
-const Rock: React.FC<RockProps> = ({ covered, setWeapon }) => {
+const Rock: React.FC<RockProps> = ({ covered, weapon, setWeapon }) => {
   return (
-    <HandWrapper {...{ covered, type: "rock", setWeapon }}>
+    <HandWrapper {...{ covered, type: "rock", weapon, setWeapon }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="80"

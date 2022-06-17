@@ -33,24 +33,24 @@ const GameExample: React.FC<GameExampleProps> = ({
               <div className="flex">
                 <div className="relative h-56 w-44 -mr-5">
                   <div className="absolute top-0 left-1/3">
-                    <Rock covered={true} />
+                    <Rock {...{ covered: true, weapon }} />
                   </div>
                   <div className="absolute top-1/3 left-0">
-                    <Scissor covered={true} />
+                    <Scissor {...{ covered: true, weapon }} />
                   </div>
                   <div className="absolute bottom-0 left-1/3">
-                    <Paper covered={true} />
+                    <Paper {...{ covered: true, weapon }} />
                   </div>
                 </div>
                 <div className="relative h-56 w-44 -ml-5">
                   <div className="absolute top-0 right-1/3">
-                    <Rock {...{ covered: false, setWeapon }} />
+                    <Rock {...{ covered: false, weapon, setWeapon }} />
                   </div>
                   <div className="absolute top-1/3 right-0">
-                    <Scissor {...{ covered: false, setWeapon }} />
+                    <Scissor {...{ covered: false, weapon, setWeapon }} />
                   </div>
                   <div className="absolute bottom-0 left-1/3">
-                    <Paper {...{ covered: false, setWeapon }} />
+                    <Paper {...{ covered: false, weapon, setWeapon }} />
                   </div>
                 </div>
               </div>
@@ -59,6 +59,7 @@ const GameExample: React.FC<GameExampleProps> = ({
         } else if (!gameStarted) {
           return <Mouse {...{ c, index }} />;
         }
+        return null;
       })}
     </>
   );
