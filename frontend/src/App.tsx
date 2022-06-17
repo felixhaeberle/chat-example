@@ -9,6 +9,7 @@ import Name from "./components/Name";
 import RotationExample from "./components/RotationExample";
 import Select from "./components/Select";
 import { calculateMidpointCoordinates } from "./helpers/calc";
+import { getWinner } from "./helpers/game";
 import produce from "immer";
 
 let socket: Socket;
@@ -104,7 +105,7 @@ function App() {
   }, [cursor]);
 
   /* Update cursors type when changed */
-  React.useEffect(() => {
+  useEffect(() => {
     console.log("type of all cursors changed");
     // Set other cursors
     setCursors((prevState) =>
@@ -115,7 +116,7 @@ function App() {
   }, [cursorType]);
 
   /* Update cursors with midpoint and rotation */
-  React.useEffect(() => {
+  useEffect(() => {
     if (midpointCoordinate) {
       setCursor((prevState) =>
         prevState ? { ...prevState, midpoint: midpointCoordinate } : undefined
@@ -124,7 +125,7 @@ function App() {
   }, [midpointCoordinate, setCursor]);
 
   /* Update cursors with weapon */
-  React.useEffect(() => {
+  useEffect(() => {
     if (cursorType === "game") {
       if (weapon) {
         setCursor((prevState) =>
@@ -134,35 +135,54 @@ function App() {
     }
   }, [cursorType, weapon]);
 
-  //c2.x === c1.x || c2.y === c1.y
-
   /* Collision detetion */
   useEffect(() => {
     if (cursorType === "game") {
       if (cursors.length > 1) {
         cursors.forEach((c1) => {
           cursors.forEach((c2) => {
+            if (c1.gameStarted === true || c2.gameStarted === true) return;
             if (c1.socket === c2.socket) return;
+
             let x = c1.x - c2.x;
             let y = c1.y - c2.y;
             let diff = Math.sqrt(x * x + y * y);
+
             if (diff < 50 + 50) {
               setPlayers([c1.socket, c2.socket]);
+              //socket.emit('room', `room[${c1.socket}][${c2.socket}]`);
             }
           });
         });
       }
     }
-  }, [cursors, cursorType]);
+  }, [cursors, cursorType, players]);
 
+  /* Start game for players */
   useEffect(() => {
     if (cursorType === "game") {
-      console.log(players);
       if (players.length === 2 && players.find((id) => id === socket.id)) {
         setGameStarted(true);
       }
     }
   }, [players, cursorType]);
+
+  /* Get winner of match */
+  useEffect(() => {
+    if (cursors.length > 1) {
+      const p1 = cursors.find((c) => c.socket === players[0]);
+      const p2 = cursors.find((c) => c.socket === players[1]);
+      if (p1 && p1.weapon && p2 && p2.weapon) {
+        console.log(getWinner(p1, p2));
+      }
+    }
+  }, [weapon, players, cursors]);
+
+  /* Reset game when curor type is changed */
+  useEffect(() => {
+    setGameStarted(false);
+    setWeapon(undefined);
+  }, [cursorType]);
 
   return (
     <>

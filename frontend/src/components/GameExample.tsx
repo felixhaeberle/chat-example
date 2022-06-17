@@ -21,12 +21,13 @@ const GameExample: React.FC<GameExampleProps> = ({
   socket,
   setWeapon,
   weapon,
+  gameStarted,
 }) => {
   return (
     <>
       {cursors.map((c: Cursor, index) => {
         ///if (socket.id && c.socket === socket.id) return null;
-        if (c.gameStarted && c.socket === socket.id) {
+        if (gameStarted && c.socket === socket.id) {
           return (
             <div className="fixed top-1/3 left-1/3">
               <div className="flex">
@@ -55,7 +56,7 @@ const GameExample: React.FC<GameExampleProps> = ({
               </div>
             </div>
           );
-        } else {
+        } else if (!gameStarted) {
           return <Mouse {...{ c, index }} />;
         }
       })}
