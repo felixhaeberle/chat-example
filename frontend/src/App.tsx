@@ -151,6 +151,7 @@ function App() {
             let diff = Math.sqrt(x * x + y * y);
 
             if (diff < 50 + 50) {
+              console.log(c1.socket, c2.socket);
               setPlayers([c1.socket, c2.socket]);
             }
           });
@@ -178,10 +179,18 @@ function App() {
         if (winner) {
           /* Set winner and reset weapon */
           setWinner(winner.socket);
-          setWeapon(undefined);
+          setTimeout(() => {
+            setWeapon(undefined);
+            setWinner(undefined);
+            setGameStarted(false);
+            setPlayers([]);
+          }, 3000);
         } else {
           /* Reset weapon */
-          setWeapon(undefined);
+          setTimeout(() => {
+            setWinner(undefined);
+            setWeapon(undefined);
+          }, 3000);
         }
       }
     }
@@ -194,6 +203,11 @@ function App() {
     setWinner(undefined);
     setPlayers([]);
   }, [cursorType]);
+
+  useEffect(() => {
+    console.log(cursor);
+    console.log(players);
+  }, [cursor, players]);
 
   return (
     <>
@@ -235,6 +249,7 @@ function App() {
                       setWeapon,
                       gameStarted,
                       winner,
+                      players,
                     }}
                   />
                 )}

@@ -2,8 +2,6 @@ import * as React from "react";
 
 import { Cursor, Weapon } from "../../../types";
 
-import { Animation } from "../Animation";
-
 interface HandWrapperProps {
   children: React.ReactNode;
   covered: boolean;
