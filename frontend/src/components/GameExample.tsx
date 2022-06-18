@@ -1,13 +1,9 @@
 import * as React from "react";
 
-import { Cursor, Weapon, midpointType } from "../types";
+import { Cursor, Weapon } from "../types";
 
-import { Animation } from "./Game/Animation";
 import Game from "./Game/Game";
 import Mouse from "./Mouse";
-import Paper from "./Game/Hands/Paper";
-import Rock from "./Game/Hands/Rock";
-import Scissor from "./Game/Hands/Scissor";
 import { Socket } from "socket.io-client";
 
 interface GameExampleProps {
