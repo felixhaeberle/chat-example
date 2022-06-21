@@ -18,6 +18,19 @@ const RotationExample: React.FC<RotationExampleProps> = ({
 }) => {
   return (
     <>
+      {midpointCoordinate ? (
+        <span
+          style={{
+            height: "6px",
+            width: "6px",
+            borderRadius: "100%",
+            backgroundColor: "navy",
+            position: "fixed",
+            top: midpointCoordinate.y,
+            left: midpointCoordinate.x,
+          }}
+        ></span>
+      ) : null}
       {cursors.map((c: Cursor, index) => {
         if (socket.id && c.socket === socket.id) return null;
         return <Mouse {...{ c, index, midpointCoordinate }} />;

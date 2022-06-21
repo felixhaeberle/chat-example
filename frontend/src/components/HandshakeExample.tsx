@@ -6,7 +6,7 @@ import Game from "./Game/Game";
 import Mouse from "./Mouse";
 import { Socket } from "socket.io-client";
 
-interface GameExampleProps {
+interface HandshakeExampleProps {
   cursors: Cursor[];
   socket: Socket;
   setWeapon: (value: Weapon) => void;
@@ -16,7 +16,7 @@ interface GameExampleProps {
   players: string[];
 }
 
-const GameExample: React.FC<GameExampleProps> = ({
+const HandshakeExample: React.FC<HandshakeExampleProps> = ({
   cursors,
   socket,
   setWeapon,
@@ -49,4 +49,4 @@ const GameExample: React.FC<GameExampleProps> = ({
   );
 };
 
-export default GameExample;
+export default HandshakeExample;

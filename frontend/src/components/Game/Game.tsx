@@ -24,13 +24,16 @@ const Game: React.FC<GameProps> = ({
   winner,
   players,
 }) => {
-  const me = c.socket === socket.id;
+  const isPlayer = players.find((id) => id === c.socket);
+  const isMe = c.socket === socket.id;
 
-  console.log(me);
+  if (!isPlayer) {
+    return null;
+  }
 
   return (
     <>
-      {me ? (
+      {isMe ? (
         <div className="relative h-56 w-44 -ml-5">
           <div className="absolute top-0 right-1/3">
             <Rock

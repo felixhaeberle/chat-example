@@ -6,6 +6,7 @@ import io, { Socket } from "socket.io-client";
 
 import { Animation } from "./components/Game/Animation";
 import GameExample from "./components/GameExample";
+import HandshakeExample from "./components/HandshakeExample";
 import Name from "./components/Name";
 import RotationExample from "./components/RotationExample";
 import Select from "./components/Select";
@@ -185,7 +186,7 @@ function App() {
             setGameStarted(false);
             setPlayers([]);
           }, 3000);
-        } else {
+        } else if (winner === undefined) {
           /* Reset weapon */
           setTimeout(() => {
             setWinner(undefined);
@@ -239,20 +240,40 @@ function App() {
             )}
             {cursorType === "game" && (
               <>
-                {winner && winner === socket.id && <Animation />}
-                {midpointCoordinate && (
-                  <GameExample
-                    {...{
-                      cursors,
-                      socket,
-                      weapon,
-                      setWeapon,
-                      gameStarted,
-                      winner,
-                      players,
-                    }}
-                  />
+                {winner && winner === socket.id && (
+                  <>
+                    <Animation />
+                    <span className="text-sm font-medium text-gray-700">
+                      You have won!
+                    </span>
+                  </>
                 )}
+                <GameExample
+                  {...{
+                    cursors,
+                    socket,
+                    weapon,
+                    setWeapon,
+                    gameStarted,
+                    winner,
+                    players,
+                  }}
+                />
+              </>
+            )}
+            {cursorType === "handshake" && (
+              <>
+                <HandshakeExample
+                  {...{
+                    cursors,
+                    socket,
+                    weapon,
+                    setWeapon,
+                    gameStarted,
+                    winner,
+                    players,
+                  }}
+                />
               </>
             )}
           </>
