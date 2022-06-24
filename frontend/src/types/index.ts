@@ -1,12 +1,16 @@
 export interface Cursor {
   x: number;
   y: number;
+  lastX: number;
+  lastY: number;
   socket: string;
   name: string;
   color: string;
   rotation: number | undefined;
   type: CursorType;
   gameStarted: boolean | undefined;
+  followStarted: boolean | undefined;
+  leader: string | undefined;
   weapon: Weapon;
   midpoint:
     | {

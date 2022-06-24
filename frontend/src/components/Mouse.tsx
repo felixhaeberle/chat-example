@@ -56,6 +56,9 @@ const Mouse: React.FC<MouseProps> = ({ c, index, midpointCoordinate }) => {
       </div>
       {c.name !== "" ? <span>{c.name}</span> : null}
       {c.rotation ? <span>{c.rotation}</span> : null}
+      {c.rotation ? (
+        <span>{midpointCoordinate?.x + " " + midpointCoordinate?.y}</span>
+      ) : null}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import { Animation } from "./components/Game/Animation";
 import GameExample from "./components/GameExample";
 import HandshakeExample from "./components/HandshakeExample";
 import Name from "./components/Name";
+import PolonaiseExample from "./components/PolonaiseExample";
 import RotationExample from "./components/RotationExample";
 import Select from "./components/Select";
 import { calculateMidpointCoordinates } from "./helpers/calc";
@@ -29,12 +30,20 @@ function App() {
   const [cursors, setCursors] = useState<Cursor[]>([]);
 
   // Game
-  const [gameStarted, setGameStarted] = React.useState<boolean | undefined>(
+  const [gameStarted, setGameStarted] = useState<boolean | undefined>(
     undefined
   );
-  const [weapon, setWeapon] = React.useState<Weapon>(undefined);
+  const [weapon, setWeapon] = useState<Weapon>(undefined);
   const [players, setPlayers] = useState<string[]>([]);
   const [winner, setWinner] = useState<string | undefined>(undefined);
+
+  // Follow
+  const [selection, setSelection] = useState<midpointType[]>([]);
+  const [followStarted, setFollowStarted] = useState<boolean | undefined>(
+    undefined
+  );
+  const [leader, setLeader] = useState<string | undefined>(undefined);
+  const [followers, setFollowers] = useState<string[]>([]);
 
   const handleCursors = useCallback(
     (data: Cursor) => {
@@ -60,6 +69,34 @@ function App() {
     [cursors]
   );
 
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log(e);
+    if (cursorType === "polonaise") {
+      // Reset selection
+      setSelection([]);
+
+      // // Set leader
+      // setLeader(socket.id);
+
+      // Set first selection point
+      const x = e.pageX;
+      const y = e.pageY;
+      setSelection([{ x: x, y: y }]);
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log(e);
+    if (cursorType === "polonaise") {
+      // Set second selection point
+      const x = e.pageX;
+      const y = e.pageY;
+      selection[0].x >= x
+        ? setSelection([{ x: x, y: y }, ...selection])
+        : setSelection([...selection, { x: x, y: y }]);
+    }
+  };
+
   /* Create socket */
   useEffect(() => {
     socket = io(ENDPOINT);
@@ -72,6 +109,11 @@ function App() {
       if (data && data.type) {
         setCursorType((prevState) =>
           prevState !== data.type ? data.type : prevState
+        );
+      }
+      if (data && data.followStarted) {
+        setFollowStarted((prevState) =>
+          prevState !== data.followStarted ? data.followStarted : prevState
         );
       }
     });
@@ -88,6 +130,8 @@ function App() {
       setCursor({
         x: e.pageX,
         y: e.pageY,
+        lastX: cursor && cursor.x ? cursor?.x : e.pageX,
+        lastY: cursor && cursor.y ? cursor?.y : e.pageY,
         socket: socket.id,
         name: name ? name : "",
         rotation: 0,
@@ -98,6 +142,8 @@ function App() {
         type: cursorType,
         weapon: weapon,
         gameStarted: gameStarted,
+        followStarted: followStarted,
+        leader: leader,
       });
     }
   };
@@ -138,6 +184,28 @@ function App() {
     }
   }, [cursorType, weapon]);
 
+  /* Update cursors with leader */
+  useEffect(() => {
+    if (cursorType === "polonaise") {
+      if (leader) {
+        setCursor((prevState) =>
+          prevState ? { ...prevState, leader: leader } : undefined
+        );
+      }
+    }
+  }, [cursorType, leader]);
+
+  // /* Update cursors with leader */
+  // useEffect(() => {
+  //   if (cursorType === "polonaise") {
+  //     if (followStarted) {
+  //       setCursor((prevState) =>
+  //         prevState ? { ...prevState, followStarted: followStarted } : undefined
+  //       );
+  //     }
+  //   }
+  // }, [cursorType, followStarted]);
+
   /* Collision detetion */
   useEffect(() => {
     if (cursorType === "game") {
@@ -152,7 +220,6 @@ function App() {
             let diff = Math.sqrt(x * x + y * y);
 
             if (diff < 50 + 50) {
-              console.log(c1.socket, c2.socket);
               setPlayers([c1.socket, c2.socket]);
             }
           });
@@ -160,6 +227,27 @@ function App() {
       }
     }
   }, [cursors, cursorType, players]);
+
+  /* Collision detetion  */
+  useEffect(() => {
+    if (cursorType === "polonaise" && selection.length > 5) {
+      if (cursors.length > 1) {
+        cursors.forEach((cursor) => {
+          if (cursor.socket === socket.id) return;
+          if (cursor.followStarted === true) return;
+
+          let isInX = selection[0].x >= cursor.x && selection[1].x <= cursor.x;
+          let isInY = selection[0].y >= cursor.y && selection[1].y <= cursor.y;
+
+          if (isInX && isInY) {
+            setFollowStarted(true);
+            setLeader(socket.id);
+            setFollowers([...followers, cursor.socket]);
+          }
+        });
+      }
+    }
+  }, [cursors, cursorType, followers, selection]);
 
   /* Start game for players */
   useEffect(() => {
@@ -206,9 +294,8 @@ function App() {
   }, [cursorType]);
 
   useEffect(() => {
-    console.log(cursor);
-    console.log(players);
-  }, [cursor, players]);
+    console.log(selection);
+  }, [selection]);
 
   return (
     <>
@@ -221,11 +308,21 @@ function App() {
         <div className="flex justify-between items-end">
           <Name {...{ name, setName }} />
           <Select {...{ activeType: cursorType, setCursorType }} />
+          <div
+            onClick={() => {
+              setLeader(socket.id);
+              setFollowStarted(true);
+            }}
+          >
+            set me as leader
+          </div>
         </div>
       </div>
       <div
         style={{ height: "100vh", width: "100vw" }}
         onMouseMove={handleMouseChange}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
       >
         {socket && cursors.length !== 0 && (
           <>
@@ -272,6 +369,20 @@ function App() {
                     gameStarted,
                     winner,
                     players,
+                  }}
+                />
+              </>
+            )}
+            {cursorType === "polonaise" && (
+              <>
+                <PolonaiseExample
+                  {...{
+                    cursors,
+                    socket,
+                    followStarted,
+                    leader,
+                    setLeader,
+                    followers,
                   }}
                 />
               </>
